@@ -20,3 +20,4 @@ out/
 dist/
 build/
 
+bluelight_api/src/main/resources/firebase-service-account.json

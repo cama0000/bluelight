@@ -4,11 +4,12 @@ import com.c5r.bluelight_api.Firebase.FirebaseService;
 import com.c5r.bluelight_api.User.Role;
 import com.c5r.bluelight_api.User.User;
 import com.c5r.bluelight_api.User.UserService;
-import com.google.firebase.auth.FirebaseToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -28,7 +29,11 @@ public class UserController {
             String idToken = authHeader.replace("Bearer ", "");
             firebaseService.verifyToken(idToken);
 
-//            User user = new User(userBody.getFirebaseUid(), userBody.getEmail(), userBody.getUsername(), userBody.getBio(), Role.USER);
+            Optional<User> checkUser = userService.findByFirebaseUid(userBody.getFirebaseUid());
+            if(checkUser.isPresent()) {
+                return ResponseEntity.ok(checkUser.get());
+            }
+
             User user = new User();
             user.setFirebaseUid(userBody.getFirebaseUid());
             user.setUsername(userBody.getUsername());

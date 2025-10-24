@@ -15,4 +15,5 @@ public class UserService {
     public void delete(User user){ userRepository.delete(user);};
     public List<User> findAll(){ return userRepository.findAll();}
     public Optional<User> findById(long id){ return userRepository.findById(id);}
+    public Optional<User> findByFirebaseUid(String firebaseUid){ return userRepository.findByFirebaseUid(firebaseUid);}
 }

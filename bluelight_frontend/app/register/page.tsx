@@ -7,32 +7,23 @@ import { signInWithPopup } from "firebase/auth";
 import { login } from '@/services/user';
 import { useRouter } from 'next/navigation';
 import { User } from "@/types/user";
+import { useAuth } from '@/context/AuthContext';
 
 // import GoogleIcon from '@mui/icons-material/Google';
 
 const page = () => {
     const router = useRouter();
+    const {authLogin} = useAuth();
 
-    async function signInWithGoogle() {
-        try {
-          const result = await signInWithPopup(auth, googleProvider);
-          const firebaseUser = result.user;
-          const token = await firebaseUser.getIdToken();
-          console.log("Firebase ID token:", token);
+    async function handleLogin() {
+      try{
+        await authLogin();
 
-          const userBody : User = {
-            firebaseUid: firebaseUser.uid,
-            email: firebaseUser.email,
-            username: firebaseUser.displayName,
-            bio: ""
-          }
-
-          await login(userBody, token);
-
-          router.push("/home");
-        } catch (error) {
-          console.error("Google sign-in error:", error);
-        }
+        router.push("/home");
+      }
+      catch(error){
+        console.log(error)
+      }
 
 
         
@@ -96,7 +87,7 @@ const page = () => {
             fontWeight: 'bold',
             marginBottom: '1rem'
           }}
-          onClick={signInWithGoogle}
+          onClick={handleLogin}
         >
           Sign in with Google
         </Typography>

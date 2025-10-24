@@ -28,15 +28,6 @@ const IndexNavBar = () => {
 
           {/* Auth Buttons */}
           <div className='flex items-center space-x-4'>
-            <Link href="/login" passHref>
-              <Button 
-                variant="text"
-                className="text-purple-600 hover:text-purple-800 normal-case text-base font-medium"
-              >
-                Login
-              </Button>
-            </Link>
-            
             <Link href="/register" passHref>
               <Button 
                 variant="contained"

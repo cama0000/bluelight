@@ -42,6 +42,19 @@ const home = () => {
         >
           Sign out
         </Typography>
+
+        <Typography 
+          component="h1" 
+          className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-900"
+          sx={{ 
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            marginBottom: '1rem'
+          }}
+          onClick={() => {router.push("/questions")}}
+        >
+        Questions
+        </Typography>
     </div>
   )
 }

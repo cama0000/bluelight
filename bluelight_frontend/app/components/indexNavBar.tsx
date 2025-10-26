@@ -26,7 +26,6 @@ const IndexNavBar = () => {
             </Link> */}
           </div>
 
-          {/* Auth Buttons */}
           <div className='flex items-center space-x-4'>
             <Link href="/register" passHref>
               <Button 

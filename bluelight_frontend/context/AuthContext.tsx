@@ -29,7 +29,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-
     async function authLogin() {
         try {
           const result = await signInWithPopup(auth, googleProvider);
@@ -41,7 +40,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             firebaseUid: firebaseUser.uid,
             email: firebaseUser.email,
             username: firebaseUser.displayName,
-            bio: ""
+            bio: "",
+            token: token
           }
 
           await login(userBody, token);

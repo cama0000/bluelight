@@ -50,6 +50,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(userBody);
         } catch (error) {
           console.error("Google sign-in error:", error);
+          throw error;
         }
     }
 

@@ -1,15 +1,21 @@
 'use client'
 
-import { Box, TextField, Typography } from '@mui/material';
 import React from 'react'
-import { auth, googleProvider } from "../../firebase"
-import { signInWithPopup } from "firebase/auth";
-import { login } from '@/services/user';
 import { useRouter } from 'next/navigation';
-import { User } from "@/types/user";
 import { useAuth } from '@/context/AuthContext';
 
-// import GoogleIcon from '@mui/icons-material/Google';
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { motion } from 'framer-motion'
+import { FcGoogle } from 'react-icons/fc'
 
 const page = () => {
     const router = useRouter();
@@ -24,97 +30,42 @@ const page = () => {
       catch(error){
         console.log(error)
       }
+}
 
-
-        
-
-//         const auth = getAuth();
-//           const googleProvider = new GoogleAuthProvider();
-
-// signInWithPopup(auth, googleProvider)
-//   .then((result) => {
-//     // This gives you a Google Access Token. You can use it to access the Google API.
-//     const credential = GoogleAuthProvider.credentialFromResult(result);
-
-//     if(credential){
-//       const token = credential.accessToken;
-//     }
-//     // The signed-in user info.
-//     const user = result.user;
-//     // IdP data available using getAdditionalUserInfo(result)
-//     // ...
-//   }).catch((error) => {
-//     // Handle Errors here.
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     // The email of the user's account used.
-//     const email = error.customData.email;
-//     // The AuthCredential type that was used.
-//     const credential = GoogleAuthProvider.credentialFromError(error);
-//     // ...
-//   });
-      }
   return (
-    <div className='min-h-screen flex flex-col bg-gradient-to-b from-purple-50 via-white to-purple-50'>
-
-      <Box
-        component="form" 
-        sx={{
-          width: '100%',
-          maxWidth: '550px',
-          margin: 'auto',
-          padding: '3rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '24px',
-          boxShadow: '0 20px 50px rgba(107, 33, 168, 0.1)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '1.5rem',
-          border: '1px solid rgba(107, 33, 168, 0.1)',
-          transition: 'all 0.3s ease-in-out',
-          '&:hover': {
-            boxShadow: '0 25px 60px rgba(107, 33, 168, 0.15)',
-          }
-        }}
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-zinc-950 to-zinc-900 text-white px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.0 }}
+        className="w-full max-w-md"
       >
-        <Typography 
-          component="h1" 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-900"
-          sx={{ 
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '1rem'
-          }}
-          onClick={handleLogin}
-        >
-          Sign in with Google
-        </Typography>
+        <Card className="bg-zinc-900 border border-zinc-800 text-white shadow-2xl">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-3xl font-bold text-blue-300">Welcome.</CardTitle>
+            <CardDescription className="text-zinc-400">
+              Sign in to your account to start solving problems.
+            </CardDescription>
+          </CardHeader>
 
+          <CardContent>
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-center gap-3 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:cursor-pointer hover:text-white text-zinc-200 py-5 transition-all duration-200"
+              onClick={handleLogin}
+            >
+              <FcGoogle className="text-xl" />
+              Continue with Google
+            </Button>
+          </CardContent>
 
-
-     
-      </Box>
+          <CardFooter className="flex flex-col items-center text-sm text-zinc-500 space-y-1">
+            <p>By continuing, you agree to our Terms of Service.</p>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 }
-
-const textFieldStyles = {
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: 'rgba(107, 33, 168, 0.2)',
-      },
-      '&:hover fieldset': {
-        borderColor: 'rgba(107, 33, 168, 0.3)',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'rgba(107, 33, 168, 0.5)',
-      },
-    },
-    '& .MuiInputLabel-root.Mui-focused': {
-      color: 'rgba(107, 33, 168, 0.8)',
-    },
-  };
 
 export default page

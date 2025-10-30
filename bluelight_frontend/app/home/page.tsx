@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext';
-import { Typography } from '@mui/material'
 import React from 'react'
 import { useRouter } from 'next/navigation';
 import ProtectedRoutes from '../components/ProtectedRoutes';
@@ -26,35 +25,21 @@ const home = () => {
     <div>
       <h1>Home</h1>
 
-      <Typography>
+      <div>
         Welcome, {user?.username}
-      </Typography>
+      </div>
 
-      <Typography 
-          component="h1" 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-900"
-          sx={{ 
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '1rem'
-          }}
+      <div 
           onClick={handleLogout}
         >
           Sign out
-        </Typography>
+        </div>
 
-        <Typography 
-          component="h1" 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-900"
-          sx={{ 
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '1rem'
-          }}
+        <div 
           onClick={() => {router.push("/questions")}}
         >
         Questions
-        </Typography>
+        </div>
     </div>
   )
 }

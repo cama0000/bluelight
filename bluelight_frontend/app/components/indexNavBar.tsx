@@ -1,6 +1,6 @@
-import { Button } from '@mui/material'
 import Link from 'next/link'
 import React from 'react'
+import { Button } from "@/components/ui/button"
 
 const IndexNavBar = () => {
   return (
@@ -29,7 +29,6 @@ const IndexNavBar = () => {
           <div className='flex items-center space-x-4'>
             <Link href="/register" passHref>
               <Button 
-                variant="contained"
                 className="!bg-purple-600 hover:!bg-purple-700 !px-6 !py-2 !rounded-full !normal-case 
                           !text-base !font-medium !text-white !shadow-md hover:!shadow-lg 
                           !transition-all duration-200 ease-in-out transform hover:!scale-105"

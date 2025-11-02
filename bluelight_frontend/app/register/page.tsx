@@ -25,7 +25,7 @@ const page = () => {
       try{
         await authLogin();
 
-        router.push("/home");
+        router.push("/questions");
       }
       catch(error){
         console.log(error)

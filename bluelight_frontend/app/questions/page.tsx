@@ -14,8 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import QuestionCard from "../components/QuestionCard";
+import ProtectedRoutes from "../components/ProtectedRoutes";
 
-export default function QuestionsPage() {
+const QuestionsPage = () => {
     const {user} = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
@@ -184,3 +185,5 @@ export default function QuestionsPage() {
 
   );
 }
+
+export default ProtectedRoutes(QuestionsPage);

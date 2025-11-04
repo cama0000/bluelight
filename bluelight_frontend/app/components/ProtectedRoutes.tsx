@@ -16,9 +16,9 @@ const HOC = (props: P) => {
 
     }, [user, router, loading]);
 
-    if(loading){
-        return <div>LOADING...</div>
-    }
+    // if(loading){
+    //     return <div>LOADING...</div>
+    // }
 
     return <WrappedComponent {...props} />;
 }

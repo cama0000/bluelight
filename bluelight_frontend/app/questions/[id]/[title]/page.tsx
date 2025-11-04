@@ -7,6 +7,10 @@ import { Question } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
+
+
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,11 +24,16 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { MoonLoader } from "react-spinners";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-const question = () => {
+const Question = () => {
     const {user} = useAuth();
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [question, setQuestion] = useState<Question | null>(null);
     const params = useParams<{id: string, title: string}>();
 
@@ -53,78 +62,159 @@ const question = () => {
         }
     }
 
-    return(
-    //     <main className="min-h-screen bg-background py-12">
-    //     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-    //       {/* Header */}
-    //       <div className="mb-8">
-    //         <h1 className="text-4xl font-bold tracking-tight text-foreground mb-2">
-    //           {question.title}
-    //         </h1>
-    //         <div className="flex items-center gap-3 text-sm text-muted-foreground">
-    //           <Badge
-    //             variant={
-    //               question.difficulty === "Easy"
-    //                 ? "outline"
-    //                 : question.difficulty === "Medium"
-    //                 ? "default"
-    //                 : "destructive"
-    //             }
-    //           >
-    //             {question.difficulty}
-    //           </Badge>
-    //           <span>•</span>
-    //           <span>{question.category}</span>
-    //         </div>
-    //       </div>
-  
-    //       {/* Problem Description */}
-    //       <Card className="mb-6 border border-border/60 shadow-sm rounded-2xl">
-    //         <CardHeader>
-    //           <CardTitle className="text-lg font-semibold text-foreground">
-    //             Problem Description
-    //           </CardTitle>
-    //         </CardHeader>
-    //         <CardContent>
-    //           <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-    //             {question.prompt}
-    //           </p>
-    //         </CardContent>
-    //       </Card>
-  
-    //       {/* Answer Choices */}
-    //       <Card className="border border-border/60 shadow-sm rounded-2xl">
-    //         <CardHeader>
-    //           <CardTitle className="text-lg font-semibold text-foreground">
-    //             Answer Choices
-    //           </CardTitle>
-    //         </CardHeader>
-  
-    //         <Separator />
-  
-    //         <CardContent className="mt-4 space-y-3">
-    //           {question.answerChoices.map((choice, index) => (
-    //             <Button
-    //               key={index}
-    //               variant="outline"
-    //               className="w-full justify-start text-left text-base hover:bg-muted transition-all rounded-xl"
-    //             >
-    //               <span className="font-medium mr-3 text-muted-foreground">
-    //                 {String.fromCharCode(65 + index)}.
-    //               </span>
-    //               {choice}
-    //             </Button>
-    //           ))}
-    //         </CardContent>
-    //       </Card>
-    //     </div>
-    //   </main>
+    function handleAnswerSelect(index: number) {
+        if(selectedAnswer !== null){
+            return;
+        }
 
-    <div>
-        yeah
-    </div>
+        const correct = index === question?.answerIndex;
+        setSelectedAnswer(index);
+        setIsCorrect(correct);
+
+        if(correct){
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ["#00f7ff", "#4ade80", "#3b82f6", "#a855f7"],
+            });
+          }
+    }
+
+    if(loading){
+        return(
+          <div className="flex items-center justify-center min-h-screen bg-black">
+            <MoonLoader color="#00f7ff" size={60} />
+          </div>
+        )
+      }
+
+    return(
+<main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-10 text-center"
+        >
+          <h1 className="text-5xl font-bold text-blue-300 mb-2">
+            {question.title}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
+            <Badge
+              className={`text-[10px] px-2 py-0.5 rounded-full ${
+                question.difficulty === "EASY"
+                  ? "bg-green-600/20 text-green-400 border border-green-700/40"
+                  : question.difficulty === "MEDIUM"
+                  ? "bg-yellow-600/20 text-yellow-400 border border-yellow-700/40"
+                  : question.difficulty === "HARD"
+                  ? "bg-red-600/20 text-red-400 border border-red-700/40"
+                  : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
+              }`}
+            >
+              {question.difficulty}
+            </Badge>
+
+            <Badge
+              className={`text-[10px] px-2 py-0.5 rounded-full ${
+                question.category === "LANGUAGES"
+                  ? "bg-purple-600/20 text-purple-400 border border-purple-700/40"
+                  : question.category === "DATABASES"
+                  ? "bg-blue-600/20 text-blue-400 border border-blue-700/40"
+                  : "bg-zinc-800/50 text-zinc-300 border border-zinc-700/40"
+              }`}
+            >
+              {question.category}
+            </Badge>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {/* Prompt */}
+          <Card className="bg-zinc-900/80 border border-zinc-800 shadow-lg rounded-2xl mb-8">
+
+            <CardContent>
+              <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
+                {question.prompt}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Answer Choices */}
+          <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">
+
+
+  <CardContent className="mt-4 space-y-3">
+    {question?.answerChoices?.map((choice, index) => {
+        const isSelected = selectedAnswer === index;
+        const isChoiceCorrect = question.answerIndex === index;
+
+
+        const baseClasses =
+        "w-full justify-start text-left text-base rounded-xl border transition-all duration-200";
+    
+      const defaultClasses =
+        "bg-transparent border-zinc-800 text-zinc-300 hover:text-blue-400 hover:bg-zinc-800/50";
+    
+      const correctClasses =
+        "bg-green-600/20 border-green-700/40 text-green-400";
+      const wrongClasses =
+        "bg-red-600/20 border-red-700/40 text-red-400";
+    
+      // Decide visual state
+      let finalClasses = defaultClasses;
+    
+      if (selectedAnswer !== null) {
+        // disable hover effects once something is selected
+        if (isSelected && isCorrect) {
+          finalClasses = correctClasses + " pointer-events-none";
+        } else if (isSelected && !isCorrect) {
+          finalClasses = wrongClasses + " pointer-events-none";
+        } else if (!isSelected && !isCorrect && isChoiceCorrect) {
+          // highlight correct answer when user got it wrong
+          finalClasses = correctClasses + " pointer-events-none";
+        } else {
+          finalClasses = "opacity-60 pointer-events-none";
+        }
+      }
+    
+      return (
+        <Button
+          key={index}
+          onClick={() => handleAnswerSelect(index)}
+          variant="outline"
+          className={`${baseClasses} ${finalClasses}`}
+        >
+          <span
+            className={`font-medium mr-3 ${
+              selectedAnswer !== null
+                ? isChoiceCorrect
+                  ? "text-green-400"
+                  : isSelected
+                  ? "text-red-400"
+                  : "text-zinc-500"
+                : "text-zinc-500"
+            }`}
+          >
+          {String.fromCharCode(65 + index)}.
+        </span>
+        {choice}
+      </Button>
+        );
+    })}
+  </CardContent>
+</Card>
+
+        </motion.div>
+      </div>
+    </main>
     );
 
 }
 
-export default ProtectedRoutes(question);
+export default ProtectedRoutes(Question);

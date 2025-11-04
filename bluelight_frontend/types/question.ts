@@ -6,7 +6,8 @@ export interface Question{
     difficulty: Difficulty
     type: QuestionType
     answerChoices?: Array<string>,
-    answerIndex?: Number
+    answerIndex?: Number,
+    points: number
 }
 
 export type QuestionRequest = Omit<Question, "id">;

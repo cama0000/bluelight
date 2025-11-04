@@ -4,4 +4,5 @@ export interface User{
     username: string | null;
     bio?: string;
     token: string;
+    points: number;
 }

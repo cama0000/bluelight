@@ -3,7 +3,7 @@
 import ProtectedRoutes from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
 import { getQuestionById } from "@/services/question";
-import { Question } from "@/types/question";
+import { AnswerRequest, Question } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label"
 import { MoonLoader } from "react-spinners";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { answerQuestion } from "@/services/user";
 
 const Question = () => {
     const {user} = useAuth();
@@ -62,7 +63,7 @@ const Question = () => {
         }
     }
 
-    function handleAnswerSelect(index: number) {
+    async function handleAnswerSelect(index: number) {
         if(selectedAnswer !== null){
             return;
         }
@@ -78,7 +79,22 @@ const Question = () => {
               origin: { y: 0.6 },
               colors: ["#00f7ff", "#4ade80", "#3b82f6", "#a855f7"],
             });
-          }
+        }
+
+        if(user && question){
+            const answerRequestBody : AnswerRequest = {
+                userId: user.firebaseUid,
+                questionId: question.id,
+                isCorrect: correct
+            }
+
+            try{
+                await answerQuestion(answerRequestBody, user.token);
+            }
+            catch(error){
+                console.log("Error answering question: " + error)
+            }
+        }
     }
 
     if(loading){
@@ -99,7 +115,7 @@ const Question = () => {
           className="mb-10 text-center"
         >
           <h1 className="text-5xl font-bold text-blue-300 mb-2">
-            {question.title}
+            {question?.title}
           </h1>
           <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
             <Badge
@@ -113,7 +129,7 @@ const Question = () => {
                   : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
               }`}
             >
-              {question.difficulty}
+              {question?.difficulty}
             </Badge>
 
             <Badge
@@ -125,7 +141,7 @@ const Question = () => {
                   : "bg-zinc-800/50 text-zinc-300 border border-zinc-700/40"
               }`}
             >
-              {question.category}
+              {question?.category}
             </Badge>
           </div>
         </motion.div>
@@ -140,7 +156,7 @@ const Question = () => {
 
             <CardContent>
               <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
-                {question.prompt}
+                {question?.prompt}
               </p>
             </CardContent>
           </Card>

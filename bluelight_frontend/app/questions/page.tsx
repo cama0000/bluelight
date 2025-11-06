@@ -105,10 +105,10 @@ const QuestionsPage = () => {
 <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
 
 
-  <Button
+  {/* <Button
   onClick={handleMakeQuestion}>
     make question
-  </Button>
+  </Button> */}
   <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
     <motion.div
       initial={{ opacity: 0, y: -20 }}

@@ -10,6 +10,12 @@ export interface Question{
     points: number
 }
 
+export interface AnswerRequest{
+    userId: string,
+    questionId: number,
+    isCorrect: boolean
+}
+
 export type QuestionRequest = Omit<Question, "id">;
 
 export enum Category{

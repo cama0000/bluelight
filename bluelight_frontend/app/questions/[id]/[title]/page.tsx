@@ -24,6 +24,7 @@ import { MoonLoader } from "react-spinners";
 import { Badge } from "@/components/ui/badge";
 import { answerQuestion } from "@/services/user";
 import { CheckCircle } from "lucide-react";
+import { Separator } from "@radix-ui/react-separator";
 
 const Question = () => {
     const {user} = useAuth();
@@ -261,30 +262,60 @@ const Question = () => {
                   </CardContent>
                 )}
 
-                    {question?.type === "FREE_RESPONSE" && (
-                    <CardContent className="mt-1 space-y-3">
-
+                {question?.type === "FREE_RESPONSE" && (
+                    <CardContent className="mt-1 space-y-6">
                         <div className="space-y-4">
                             <Input
-                                id="response"
-                                type="text"
-                                placeholder="Enter your response..."
-                                value={response}
-                                onChange={(e) => setResponse(e.target.value)}
-                                className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500 focus-visible:ring-blue-500"
+                            id="response"
+                            type="text"
+                            placeholder="Enter your response..."
+                            value={response}
+                            onChange={(e) => setResponse(e.target.value)}
+                            className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500 focus-visible:ring-blue-500"
                             />
-                            <Button
-                                onClick={handleFreeResponseSubmit}
-                                className="bg-blue-600 hover:bg-blue-500 transition-all"
-                            >
-                                Submit
-                            </Button>
                         </div>
 
+                        {isCorrect === null && (
+                            <div className="flex justify-center">
+                                <Button
+                                onClick={handleFreeResponseSubmit}
+                                className="w-1/8 bg-blue-600 hover:bg-blue-500 transition-all"
+                                >
+                                    Submit
+                                </Button>
+                            </div>
+                        )}
                     </CardContent>
-                    )}
+                )}
+
             
             </Card>
+
+            {(isCorrect !== null) && (
+                <Card
+                    className={`mt-8 border ${
+                    isCorrect
+                        ? "bg-green-600/20 border-green-700/40 text-green-400"
+                        : "bg-red-600/20 border-red-700/40 text-red-400"
+                    }`}
+                >
+                    <CardContent>
+                        <div className="text-base font-medium space-y-4">
+                            {response !== "" && (
+                                <>
+                                    <div>{question?.freeResponseAnswer}</div>
+                                    <Separator className="bg-white/20 h-[1px] my-2 rounded-full" />
+                                </>
+                            )}
+
+                            <div className="text-zinc-200">{question?.explanation}</div>
+                        </div>
+                    </CardContent>
+                </Card>
+                )}
+
+
+
 
         </motion.div>
       </div>

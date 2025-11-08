@@ -10,6 +10,7 @@ export interface Question{
     points: number,
     isCorrect?: boolean
     freeResponseAnswer?: string
+    explanation?: string
 }
 
 export interface AnswerRequest{

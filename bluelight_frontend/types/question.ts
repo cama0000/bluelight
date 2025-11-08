@@ -9,6 +9,7 @@ export interface Question{
     answerIndex?: number,
     points: number,
     isCorrect?: boolean
+    freeResponseAnswer?: string
 }
 
 export interface AnswerRequest{
@@ -38,5 +39,6 @@ export enum Difficulty{
 
 export enum QuestionType{
     MULTIPLE_CHOICE = "Multiple Choice",
+    FREE_RESPONSE = "Free Response",
     CODING = "Coding"
 }

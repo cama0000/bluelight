@@ -28,10 +28,6 @@ export const login = async(userBody : User, token : string) => {
 }
 
 export const answerQuestion = async(requestBody : AnswerRequest, token : string) => {
-
-
-  console.log("CORRECT: " + requestBody.isCorrect);
-  
   await axios.put(
       `${process.env.NEXT_PUBLIC_HOST_NAME}user/answerQuestion`, requestBody,
       {

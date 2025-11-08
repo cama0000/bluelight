@@ -20,10 +20,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { MoonLoader } from "react-spinners";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { answerQuestion } from "@/services/user";
 import { CheckCircle } from "lucide-react";
 
@@ -34,6 +32,7 @@ const Question = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [question, setQuestion] = useState<Question | null>(null);
+    const [response, setResponse] = useState<string>("");
     const params = useParams<{id: string, title: string}>();
 
     useEffect(() => {
@@ -95,6 +94,40 @@ const Question = () => {
         }
     }
 
+    async function handleFreeResponseSubmit() {
+        if(response === "" || !response){
+            return;
+        }
+
+
+        const correct = response.toLowerCase() === question?.freeResponseAnswer?.toLowerCase();
+        setIsCorrect(correct);
+
+        if(correct){
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ["#00f7ff", "#4ade80", "#3b82f6", "#a855f7"],
+            });
+        }
+
+        if(user && question){
+            const answerRequestBody : AnswerRequest = {
+                userId: user.firebaseUid,
+                questionId: question.id,
+                isCorrect: correct
+            }
+
+            try{
+                await answerQuestion(answerRequestBody, user.token);
+            }
+            catch(error){
+                console.log("Error answering question: " + error)
+            }
+        }
+    }
+
     if(loading){
         return(
           <div className="flex items-center justify-center min-h-screen bg-black">
@@ -119,6 +152,7 @@ const Question = () => {
                 <CheckCircle className="text-green-400 w-8 h-8" />
             )}
           </h1>
+          
           <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
             <Badge
               className={`text-[10px] px-2 py-0.5 rounded-full ${
@@ -163,71 +197,94 @@ const Question = () => {
           </Card>
 
           <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">
+                {question?.type === "MULTIPLE_CHOICE" && (
+                    <CardContent className="mt-4 space-y-3">
+                    {question?.answerChoices?.map((choice, index) => {
+                    const isSelected = selectedAnswer === index;
+                    const isChoiceCorrect = question.answerIndex === index;
+                
+                    const baseClasses =
+                        "w-full justify-start text-left text-base rounded-xl border transition-all duration-200";
+                
+                    const defaultClasses =
+                        "bg-transparent border-zinc-800 text-zinc-300 hover:text-blue-400 hover:bg-zinc-800/50";
+                
+                    const correctClasses =
+                        "bg-green-600/20 border-green-700/40 text-green-400";
+                    const wrongClasses =
+                        "bg-red-600/20 border-red-700/40 text-red-400";
+                
+                    let finalClasses = defaultClasses;
+                
+                    if (selectedAnswer !== null || question.isCorrect) {
+                        if ((isSelected && isCorrect) || (question.isCorrect && isChoiceCorrect)) {
+                        finalClasses = correctClasses + " pointer-events-none";
+                        } else if (isSelected && !isCorrect) {
+                        finalClasses = wrongClasses + " pointer-events-none";
+                        } else if (!isSelected && !isCorrect && isChoiceCorrect) {
+                        finalClasses = correctClasses + " pointer-events-none";
+                        } else {
+                        finalClasses = "opacity-60 pointer-events-none";
+                        }
+                    }
+                
+                    return (
+                        <Button
+                        key={index}
+                        onClick={() => {
+                            if (!question.isCorrect && selectedAnswer === null) {
+                            handleAnswerSelect(index);
+                            }
+                        }}
+                        variant="outline"
+                        className={`${baseClasses} ${finalClasses}`}
+                        >
+                        <span
+                            className={`font-medium mr-3 ${
+                            selectedAnswer !== null || question.isCorrect
+                                ? isChoiceCorrect
+                                ? "text-green-400"
+                                : isSelected
+                                ? "text-red-400"
+                                : "text-zinc-500"
+                                : "text-zinc-500"
+                            }`}
+                        >
+                            {String.fromCharCode(65 + index)}.
+                        </span>
+                        {choice}
+                        </Button>
+                        
+                    );
+                    })}
 
+                  </CardContent>
+                )}
 
-  <CardContent className="mt-4 space-y-3">
-  {question?.answerChoices?.map((choice, index) => {
-  const isSelected = selectedAnswer === index;
-  const isChoiceCorrect = question.answerIndex === index;
+                    {question?.type === "FREE_RESPONSE" && (
+                    <CardContent className="mt-1 space-y-3">
 
-  const baseClasses =
-    "w-full justify-start text-left text-base rounded-xl border transition-all duration-200";
+                        <div className="space-y-4">
+                            <Input
+                                id="response"
+                                type="text"
+                                placeholder="Enter your response..."
+                                value={response}
+                                onChange={(e) => setResponse(e.target.value)}
+                                className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500 focus-visible:ring-blue-500"
+                            />
+                            <Button
+                                onClick={handleFreeResponseSubmit}
+                                className="bg-blue-600 hover:bg-blue-500 transition-all"
+                            >
+                                Submit
+                            </Button>
+                        </div>
 
-  const defaultClasses =
-    "bg-transparent border-zinc-800 text-zinc-300 hover:text-blue-400 hover:bg-zinc-800/50";
-
-  const correctClasses =
-    "bg-green-600/20 border-green-700/40 text-green-400";
-  const wrongClasses =
-    "bg-red-600/20 border-red-700/40 text-red-400";
-
-  let finalClasses = defaultClasses;
-
-  // Determine visual state
-  if (selectedAnswer !== null || question.isCorrect) {
-    if ((isSelected && isCorrect) || (question.isCorrect && isChoiceCorrect)) {
-      finalClasses = correctClasses + " pointer-events-none";
-    } else if (isSelected && !isCorrect) {
-      finalClasses = wrongClasses + " pointer-events-none";
-    } else if (!isSelected && !isCorrect && isChoiceCorrect) {
-      finalClasses = correctClasses + " pointer-events-none";
-    } else {
-      finalClasses = "opacity-60 pointer-events-none";
-    }
-  }
-
-  return (
-    <Button
-      key={index}
-      onClick={() => {
-        if (!question.isCorrect && selectedAnswer === null) {
-          handleAnswerSelect(index);
-        }
-      }}
-      variant="outline"
-      className={`${baseClasses} ${finalClasses}`}
-    >
-      <span
-        className={`font-medium mr-3 ${
-          selectedAnswer !== null || question.isCorrect
-            ? isChoiceCorrect
-              ? "text-green-400"
-              : isSelected
-              ? "text-red-400"
-              : "text-zinc-500"
-            : "text-zinc-500"
-        }`}
-      >
-        {String.fromCharCode(65 + index)}.
-      </span>
-      {choice}
-    </Button>
-  );
-})}
-
-
-  </CardContent>
-</Card>
+                    </CardContent>
+                    )}
+            
+            </Card>
 
         </motion.div>
       </div>

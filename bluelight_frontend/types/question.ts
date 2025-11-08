@@ -8,9 +8,11 @@ export interface Question{
     answerChoices?: Array<string>,
     answerIndex?: number,
     points: number,
-    isCorrect?: boolean
-    freeResponseAnswer?: string
-    explanation?: string
+    isCorrect?: boolean,
+    freeResponseAnswer?: string,
+    explanation?: string,
+    codeSnippet?: string,
+    language?: Language
 }
 
 export interface AnswerRequest{
@@ -42,4 +44,13 @@ export enum QuestionType{
     MULTIPLE_CHOICE = "Multiple Choice",
     FREE_RESPONSE = "Free Response",
     CODING = "Coding"
+}
+
+export enum Language{
+    JAVA = "Java",
+    JAVASCRIPT = "JavaScript",
+    TYPESCRIPT = "TypeScript",
+    CPP = "C++",
+    C = "C",
+    PYTHON = "Python"
 }

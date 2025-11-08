@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { answerQuestion } from "@/services/user";
 import { CheckCircle } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Question = () => {
     const {user} = useAuth();
@@ -197,6 +199,29 @@ const Question = () => {
             </CardContent>
           </Card>
 
+
+            {question?.codeSnippet && (
+                <Card className="bg-zinc-900/80 border border-zinc-800 shadow-lg rounded-2xl mb-8">
+                    <CardContent>
+                        <SyntaxHighlighter 
+                        language={question.language?.toLowerCase()}
+                        style={oneDark} 
+                        showLineNumbers
+                        customStyle={{
+                            backgroundColor: "transparent", // removes the default dark block
+                            padding: "0.75rem",
+                            fontSize: "0.9rem",
+                          }}
+                          codeTagProps={{
+                            style: { fontFamily: "monospace" },
+                          }}
+                        className="rounded-xl mt-4">
+                            {question.codeSnippet}
+                        </SyntaxHighlighter>
+                    </CardContent>
+                </Card>
+            )}
+
           <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">
                 {question?.type === "MULTIPLE_CHOICE" && (
                     <CardContent className="mt-4 space-y-3">
@@ -279,7 +304,7 @@ const Question = () => {
                             <div className="flex justify-center">
                                 <Button
                                 onClick={handleFreeResponseSubmit}
-                                className="w-1/8 bg-blue-600 hover:bg-blue-500 transition-all"
+                                className="w-1/8 bg-blue-600 hover:bg-blue-500 transition-all hover:cursor-pointer"
                                 >
                                     Submit
                                 </Button>

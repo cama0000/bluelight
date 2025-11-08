@@ -28,15 +28,36 @@ const QuestionCard = ({question}: QuestionProps) => {
         >
             <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-                <h2 className="text-base font-semibold text-white truncate group-hover:text-blue-400 transition-colors">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-white truncate group-hover:text-blue-400 transition-colors">
                 {question.title}
-                </h2>
-                <div className="text-xs text-zinc-400 mt-0.5">
-                {QuestionType[
-                    question.type as unknown as keyof typeof QuestionType
-                ] ?? question.type}
-                </div>
+              </h2>
+
+              {question.correct && (
+                <span className="text-green-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.704 5.29a1 1 0 010 1.42l-7.25 7.25a1 1 0 01-1.42 0l-3.25-3.25a1 1 0 111.42-1.42l2.54 2.54 6.54-6.54a1 1 0 011.42 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </span>
+              )}
             </div>
+
+  <div className="text-xs text-zinc-400 mt-0.5">
+    {QuestionType[
+      question.type as unknown as keyof typeof QuestionType
+    ] ?? question.type}
+  </div>
+</div>
+
 
             <div className="flex items-center gap-2">
             <Badge

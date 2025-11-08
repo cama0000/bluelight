@@ -3,15 +3,12 @@
 import ProtectedRoutes from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
 import { getQuestionById } from "@/services/question";
-import { AnswerRequest, Question } from "@/types/question";
+import type { AnswerRequest, Question } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-
-
-
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -28,6 +25,7 @@ import { MoonLoader } from "react-spinners";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { answerQuestion } from "@/services/user";
+import { CheckCircle } from "lucide-react";
 
 const Question = () => {
     const {user} = useAuth();
@@ -107,6 +105,7 @@ const Question = () => {
 
     return(
 <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
+
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -114,8 +113,11 @@ const Question = () => {
           transition={{ duration: 0.6 }}
           className="mb-10 text-center"
         >
-          <h1 className="text-5xl font-bold text-blue-300 mb-2">
+          <h1 className="text-5xl font-bold text-blue-300 mb-2 flex items-center justify-center gap-3">
             {question?.title}
+            {question?.correct && (
+                <CheckCircle className="text-green-400 w-8 h-8" />
+            )}
           </h1>
           <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
             <Badge
@@ -151,7 +153,6 @@ const Question = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/* Prompt */}
           <Card className="bg-zinc-900/80 border border-zinc-800 shadow-lg rounded-2xl mb-8">
 
             <CardContent>
@@ -161,68 +162,70 @@ const Question = () => {
             </CardContent>
           </Card>
 
-          {/* Answer Choices */}
           <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">
 
 
   <CardContent className="mt-4 space-y-3">
-    {question?.answerChoices?.map((choice, index) => {
-        const isSelected = selectedAnswer === index;
-        const isChoiceCorrect = question.answerIndex === index;
+  {question?.answerChoices?.map((choice, index) => {
+  const isSelected = selectedAnswer === index;
+  const isChoiceCorrect = question.answerIndex === index;
 
+  const baseClasses =
+    "w-full justify-start text-left text-base rounded-xl border transition-all duration-200";
 
-        const baseClasses =
-        "w-full justify-start text-left text-base rounded-xl border transition-all duration-200";
-    
-      const defaultClasses =
-        "bg-transparent border-zinc-800 text-zinc-300 hover:text-blue-400 hover:bg-zinc-800/50";
-    
-      const correctClasses =
-        "bg-green-600/20 border-green-700/40 text-green-400";
-      const wrongClasses =
-        "bg-red-600/20 border-red-700/40 text-red-400";
-    
-      // Decide visual state
-      let finalClasses = defaultClasses;
-    
-      if (selectedAnswer !== null) {
-        // disable hover effects once something is selected
-        if (isSelected && isCorrect) {
-          finalClasses = correctClasses + " pointer-events-none";
-        } else if (isSelected && !isCorrect) {
-          finalClasses = wrongClasses + " pointer-events-none";
-        } else if (!isSelected && !isCorrect && isChoiceCorrect) {
-          // highlight correct answer when user got it wrong
-          finalClasses = correctClasses + " pointer-events-none";
-        } else {
-          finalClasses = "opacity-60 pointer-events-none";
+  const defaultClasses =
+    "bg-transparent border-zinc-800 text-zinc-300 hover:text-blue-400 hover:bg-zinc-800/50";
+
+  const correctClasses =
+    "bg-green-600/20 border-green-700/40 text-green-400";
+  const wrongClasses =
+    "bg-red-600/20 border-red-700/40 text-red-400";
+
+  let finalClasses = defaultClasses;
+
+  // Determine visual state
+  if (selectedAnswer !== null || question.isCorrect) {
+    if ((isSelected && isCorrect) || (question.isCorrect && isChoiceCorrect)) {
+      finalClasses = correctClasses + " pointer-events-none";
+    } else if (isSelected && !isCorrect) {
+      finalClasses = wrongClasses + " pointer-events-none";
+    } else if (!isSelected && !isCorrect && isChoiceCorrect) {
+      finalClasses = correctClasses + " pointer-events-none";
+    } else {
+      finalClasses = "opacity-60 pointer-events-none";
+    }
+  }
+
+  return (
+    <Button
+      key={index}
+      onClick={() => {
+        if (!question.isCorrect && selectedAnswer === null) {
+          handleAnswerSelect(index);
         }
-      }
-    
-      return (
-        <Button
-          key={index}
-          onClick={() => handleAnswerSelect(index)}
-          variant="outline"
-          className={`${baseClasses} ${finalClasses}`}
-        >
-          <span
-            className={`font-medium mr-3 ${
-              selectedAnswer !== null
-                ? isChoiceCorrect
-                  ? "text-green-400"
-                  : isSelected
-                  ? "text-red-400"
-                  : "text-zinc-500"
-                : "text-zinc-500"
-            }`}
-          >
-          {String.fromCharCode(65 + index)}.
-        </span>
-        {choice}
-      </Button>
-        );
-    })}
+      }}
+      variant="outline"
+      className={`${baseClasses} ${finalClasses}`}
+    >
+      <span
+        className={`font-medium mr-3 ${
+          selectedAnswer !== null || question.isCorrect
+            ? isChoiceCorrect
+              ? "text-green-400"
+              : isSelected
+              ? "text-red-400"
+              : "text-zinc-500"
+            : "text-zinc-500"
+        }`}
+      >
+        {String.fromCharCode(65 + index)}.
+      </span>
+      {choice}
+    </Button>
+  );
+})}
+
+
   </CardContent>
 </Card>
 

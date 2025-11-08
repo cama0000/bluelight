@@ -6,8 +6,9 @@ export interface Question{
     difficulty: Difficulty
     type: QuestionType
     answerChoices?: Array<string>,
-    answerIndex?: Number,
-    points: number
+    answerIndex?: number,
+    points: number,
+    isCorrect?: boolean
 }
 
 export interface AnswerRequest{

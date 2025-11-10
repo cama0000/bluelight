@@ -1,4 +1,4 @@
-import { Question, QuestionRequest } from "@/types/question";
+import { Question, QuestionRequest, QuestionResponse, VoteRequest } from "@/types/question";
 import axios from "axios";
 
 export const saveQuestion = async(questionBody : QuestionRequest, token : string) => {
@@ -40,4 +40,17 @@ export const getQuestionById = async(questionId: string, token : string): Promis
       );
 
       return response.data;
+}
+
+export const submitLikeDislike = async(voteRequestBody : VoteRequest, token : string): Promise<Question> => {
+  const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_HOST_NAME}questions/submitLikeDislike`, voteRequestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
 }

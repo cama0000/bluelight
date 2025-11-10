@@ -2,8 +2,8 @@
 
 import ProtectedRoutes from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
-import { getQuestionById } from "@/services/question";
-import type { AnswerRequest, Question } from "@/types/question";
+import { getQuestionById, submitLikeDislike } from "@/services/question";
+import type { AnswerRequest, Question, QuestionResponse, VoteRequest } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { MoonLoader } from "react-spinners";
 import { Badge } from "@/components/ui/badge";
 import { answerQuestion } from "@/services/user";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -43,6 +43,7 @@ const Question = () => {
             fetchQuestion(params);
         }
     }, [user?.firebaseUid, params?.id]);
+      
 
     async function fetchQuestion(params: {id: string, title: string}){
         if(!user?.token){
@@ -92,7 +93,7 @@ const Question = () => {
                 await answerQuestion(answerRequestBody, user.token);
             }
             catch(error){
-                console.log("Error answering question: " + error)
+                console.log("Error answering question: " + error);
             }
         }
     }
@@ -101,7 +102,6 @@ const Question = () => {
         if(response === "" || !response){
             return;
         }
-
 
         const correct = response.toLowerCase() === question?.freeResponseAnswer?.toLowerCase();
         setIsCorrect(correct);
@@ -126,10 +126,38 @@ const Question = () => {
                 await answerQuestion(answerRequestBody, user.token);
             }
             catch(error){
-                console.log("Error answering question: " + error)
+                console.log("Error answering question: " + error);
             }
         }
     }
+
+    async function handleLikeDislike(didLike: boolean) {
+        if (!user || !question) return;
+      
+        try {
+          const voteRequestBody: VoteRequest = {
+            userId: user.firebaseUid,
+            questionId: question.id,
+            isLiked: didLike,
+          };
+      
+          const data: Question = await submitLikeDislike(voteRequestBody, user.token);
+      
+          setQuestion((prev) => {
+            if (!prev) return prev;
+            const updated = {
+              ...prev,
+              likes: data.likes ?? prev.likes,
+              dislikes: data.dislikes ?? prev.dislikes,
+              isLiked: data.isLiked,
+              isDisliked: data.isDisliked,
+            };
+            return updated;
+          });
+        } catch (error) {
+          console.log("Error voting on question:", error);
+        }
+      }
 
     if(loading){
         return(
@@ -182,7 +210,40 @@ const Question = () => {
             >
               {question?.category}
             </Badge>
-          </div>
+
+
+
+
+            <div className="h-4 w-px bg-zinc-700"></div>
+
+                <div className="flex items-center gap-2">
+                <Button
+                    onClick={() => { handleLikeDislike(true) }}
+                    className={"p-1 bg-transparent hover:bg-transparent hover:cursor-pointer text-green-500 hover:scale-125"}
+                >
+                    {question?.isLiked ? (
+                        <ThumbsUp size={18} className="fill-green-500 text-green-500" />
+                        ) : (
+                        <ThumbsUp size={18} />
+                    )}
+                </Button>
+                <span className="text-green-500 text-s">{question?.likes}</span>
+
+
+                <Button
+                    onClick={() => { handleLikeDislike(false) }}
+                    className={"p-1 bg-transparent hover:bg-transparent hover:cursor-pointer text-red-500 hover:scale-125"}
+                >
+                    {question?.isDisliked ? (
+                        <ThumbsDown size={18} className="fill-red-500 text-red-500" />
+                        ) : (
+                        <ThumbsDown size={18} />
+                        )}
+                </Button>
+                <span className="text-red-500 text-s">{question?.dislikes}</span>
+
+                </div>
+            </div>
         </motion.div>
 
         <motion.div
@@ -208,7 +269,7 @@ const Question = () => {
                         style={oneDark} 
                         showLineNumbers
                         customStyle={{
-                            backgroundColor: "transparent", // removes the default dark block
+                            backgroundColor: "transparent",
                             padding: "0.75rem",
                             fontSize: "0.9rem",
                           }}

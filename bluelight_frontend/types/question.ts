@@ -9,10 +9,14 @@ export interface Question{
     answerIndex?: number,
     points: number,
     isCorrect?: boolean,
+    isLiked?: boolean,
+    isDisliked?: boolean,
     freeResponseAnswer?: string,
     explanation?: string,
     codeSnippet?: string,
     language?: Language
+    likes: number,
+    dislikes: number
 }
 
 export interface AnswerRequest{
@@ -20,6 +24,22 @@ export interface AnswerRequest{
     questionId: number,
     isCorrect: boolean
 }
+
+export interface VoteRequest{
+    userId: string,
+    questionId: number,
+    isLiked: boolean
+}
+
+// export interface QuestionResponse{
+//     userId: string,
+//     questionId: number,
+//     isCorrect?: boolean,
+//     isLiked?: boolean,
+//     isDisliked?: boolean,
+//     likes?: number,
+//     dislikes?: number
+// }
 
 export type QuestionRequest = Omit<Question, "id">;
 

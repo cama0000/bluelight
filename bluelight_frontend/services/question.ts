@@ -1,4 +1,4 @@
-import { Question, QuestionRequest, QuestionResponse, VoteRequest } from "@/types/question";
+import { Question, QuestionRequest, VoteRequest } from "@/types/question";
 import axios from "axios";
 
 export const saveQuestion = async(questionBody : QuestionRequest, token : string) => {

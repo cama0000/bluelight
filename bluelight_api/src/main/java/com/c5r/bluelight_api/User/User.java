@@ -66,6 +66,13 @@ public class User{
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(
+            name = "POINTS",
+            nullable = false,
+            columnDefinition = "INT DEFAULT 0"
+    )
+    private int points = 0;
+
 //    public User(String firebaseUid, String email, String username, String bio, Role role) {
 //        this.firebaseUid = firebaseUid;
 //        this.email = email;
@@ -120,6 +127,14 @@ public class User{
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public int getPoints() {
+        return this.points;
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {

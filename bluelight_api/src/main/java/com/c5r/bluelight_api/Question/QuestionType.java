@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum QuestionType {
     MULTIPLE_CHOICE("Multiple Choice"),
+    FREE_RESPONSE("Free Response"),
     CODING("Coding");
 
     private final String value;

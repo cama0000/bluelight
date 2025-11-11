@@ -3,7 +3,7 @@
 import ProtectedRoutes from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
 import { getQuestionById, submitLikeDislike } from "@/services/question";
-import type { AnswerRequest, Question, QuestionResponse, VoteRequest } from "@/types/question";
+import type { AnswerRequest, Question, VoteRequest } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

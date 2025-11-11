@@ -64,10 +64,55 @@ public class Question {
     @Column(
             name = "ANSWER_INDEX"
     )
-    private int answerIndex;
+    private Integer answerIndex;
 
+    @Column(name = "FREE_RESPONSE_ANSWER", columnDefinition = "TEXT")
+    private String freeResponseAnswer;
 
+    @Column(
+            name = "POINTS"
+    )
+    private int points;
 
+    @Column(
+            name = "EXPLANATION",
+            columnDefinition = "TEXT"
+    )
+    private String explanation;
+
+    @Column(
+            name = "CODE_SNIPPET",
+            columnDefinition = "TEXT"
+    )
+    private String codeSnippet;
+
+    @Column(
+            name = "LANGUAGE"
+    )
+    @Enumerated(EnumType.STRING)
+    private Language language;
+
+    @Column(
+            name = "LIKES",
+            nullable = false,
+            columnDefinition = "INT DEFAULT 0"
+    )
+    private int likes;
+
+    @Column(
+            name = "DISLIKES",
+            nullable = false,
+            columnDefinition = "INT DEFAULT 0"
+    )
+    private int dislikes;
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public void setDislikes(int dislikes) {
+        this.dislikes = dislikes;
+    }
 
     public Integer getId() {
         return this.id;
@@ -97,7 +142,35 @@ public class Question {
         return this.answerChoices;
     }
 
-    public int getAnswerIndex() {
+    public Integer getAnswerIndex() {
         return this.answerIndex;
     }
+
+    public int getPoints() {
+        return this.points;
+    }
+
+    public String getFreeResponseAnswer() {
+        return this.freeResponseAnswer;
+    }
+
+    public String getExplanation() {
+        return this.explanation;
+    }
+
+    public String getCodeSnippet() {
+        return this.codeSnippet;
+    }
+
+    public Language getLanguage() {
+        return this.language;
+    }
+
+    public int getLikes() {
+        return this.likes;
+    }
+    public int getDislikes() {
+        return this.dislikes;
+    }
+
 }

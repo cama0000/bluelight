@@ -1,4 +1,4 @@
-import { AnswerRequest } from "@/types/question";
+import { AnswerRequest, Question } from "@/types/question";
 import { User } from "@/types/user";
 import axios from "axios";
 
@@ -37,4 +37,17 @@ export const answerQuestion = async(requestBody : AnswerRequest, token : string)
       }
     );
     
+}
+
+export const getCompletedQuestions = async(token : string): Promise<Question[]> => {
+  const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_HOST_NAME}questions/getCompletedQuestions`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
 }

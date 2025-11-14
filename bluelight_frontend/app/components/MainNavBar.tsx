@@ -19,14 +19,12 @@ const MainNavBar = () => {
     <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo on the left */}
           <Link href="/" className="flex items-center">
             <span className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500">
               bluelight
             </span>
           </Link>
 
-          {/* Centered Navigation Links */}
           <div className="flex-1 flex justify-center">
             <div className="hidden md:flex items-center space-x-10">
               {navItems.map((item) => {

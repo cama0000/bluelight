@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import React, { ComponentType, useEffect, useState } from 'react';
+import { MoonLoader } from 'react-spinners';
 
 function ProtectedRoutes<P extends object>(WrappedComponent: ComponentType<P>) {
 const HOC = (props: P) => {
@@ -16,9 +17,9 @@ const HOC = (props: P) => {
 
     }, [user, router, loading]);
 
-    // if(loading){
-    //     return <div>LOADING...</div>
-    // }
+    if(loading){
+        return <MoonLoader/>
+    }
 
     return <WrappedComponent {...props} />;
 }

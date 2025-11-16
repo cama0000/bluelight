@@ -4,8 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import ProtectedRoutes from "../components/ProtectedRoutes";
+import { useRouter } from "next/navigation";
 
 const MainNavBar = () => {
+    const {user, authLogout} = useAuth();
+    const router = useRouter();
   const pathname = usePathname();
 
   const navItems = [
@@ -14,6 +19,18 @@ const MainNavBar = () => {
     { name: "Leaderboard", href: "/leaderboard" },
     { name: "Community", href: "/community" },
   ];
+
+  async function handleLogout(){
+
+    try{
+      await authLogout();
+
+      router.push("/");
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800">
@@ -53,7 +70,24 @@ const MainNavBar = () => {
             </div>
           </div>
 
-          <div className="w-[140px]" />
+          <div className="flex items-center justify-end w-[160px]">
+            {user && (
+                <motion.button
+                onClick={handleLogout}
+                whileHover={{ scale: 1.07 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 text-sm font-semibold rounded-xl
+                            bg-blue-300 text-white shadow-lg 
+                            hover:bg-blue-400 transition-all duration-200 
+                            hover:shadow-blue-500/30 hover:cursor-pointer"
+                >
+                Logout
+                </motion.button>
+            )}
+        </div>
+
+
+
         </div>
       </div>
     </nav>

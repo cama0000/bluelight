@@ -10,17 +10,6 @@ const home = () => {
   const router = useRouter();
   const {authLogout, user} = useAuth();
   
-  async function handleLogout(){
-
-    try{
-      await authLogout();
-
-      router.push("/");
-    }
-    catch(error){
-      console.log(error);
-    }
-  }
   return (
     <div>
       <h1>Home</h1>
@@ -28,12 +17,6 @@ const home = () => {
       <div>
         Welcome, {user?.username}
       </div>
-
-      <div 
-          onClick={handleLogout}
-        >
-          Sign out
-        </div>
 
         <div 
           onClick={() => {router.push("/questions")}}

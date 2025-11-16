@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
@@ -16,10 +16,20 @@ import {
 } from "@/components/ui/card"
 import { motion } from 'framer-motion'
 import { FcGoogle } from 'react-icons/fc'
+import ProtectedRoutes from '../components/ProtectedRoutes';
+import { MoonLoader } from 'react-spinners';
 
 const page = () => {
     const router = useRouter();
-    const {authLogin} = useAuth();
+    const {authLogin, user} = useAuth();
+    const [loading, setLoading] = useState(true);
+
+
+    useEffect(() => {
+      if(user){
+        router.push("/questions");
+      }
+    }, [user])
 
     async function handleLogin() {
       try{
@@ -29,6 +39,14 @@ const page = () => {
       }
       catch(error){
         console.log(error)
+      }
+
+      if(loading){
+        return(
+          <div className="flex items-center justify-center min-h-screen bg-black">
+            <MoonLoader color="#00f7ff" size={60} />
+          </div>
+        )
       }
 }
 
@@ -68,4 +86,4 @@ const page = () => {
   );
 }
 
-export default page
+export default page;

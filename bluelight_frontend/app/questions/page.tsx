@@ -15,6 +15,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import QuestionCard from "../components/QuestionCard";
 import ProtectedRoutes from "../components/ProtectedRoutes";
+import Loader from "../components/Loader";
 
 const QuestionsPage = () => {
     const {user} = useAuth();
@@ -96,11 +97,9 @@ const QuestionsPage = () => {
 
     if(loading){
       return(
-        <div className="flex items-center justify-center min-h-screen bg-black">
-          <MoonLoader color="#00f7ff" size={60} />
-        </div>
+        <Loader/>
       )
-    }
+  }
 
   return (
 <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">

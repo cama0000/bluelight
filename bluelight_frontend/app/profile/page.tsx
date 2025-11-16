@@ -13,6 +13,7 @@ import { User, Mail, Trophy, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCompletedQuestions, getFavoritedQuestions } from "@/services/user";
 import Link from "next/link";
+import Loader from "../components/Loader";
 
 
 // TODO: put the rank really big #86 on the right side of the user part
@@ -74,11 +75,9 @@ const ProfilePage = () => {
     }
 
     if(loading){
-        return(
-          <div className="flex items-center justify-center min-h-screen bg-black">
-            <MoonLoader color="#00f7ff" size={60} />
-          </div>
-        )
+      return(
+        <Loader/>
+      )
     }
 
     return(

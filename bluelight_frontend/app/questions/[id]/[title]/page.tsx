@@ -14,12 +14,7 @@ import { Star, Type } from "lucide-react";
 
 import {
   Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { MoonLoader } from "react-spinners";
@@ -29,6 +24,8 @@ import { CheckCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import CodeSnippet from "@/app/components/CodeSnippet";
+import Loader from "@/app/components/Loader";
 
 const Question = () => {
     const {user} = useAuth();
@@ -195,11 +192,9 @@ const Question = () => {
 
     if(loading){
         return(
-          <div className="flex items-center justify-center min-h-screen bg-black">
-            <MoonLoader color="#00f7ff" size={60} />
-          </div>
+          <Loader/>
         )
-      }
+    }
 
     return(
 <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
@@ -314,25 +309,7 @@ const Question = () => {
 
 
             {question?.codeSnippet && (
-                <Card className="bg-zinc-900/80 border border-zinc-800 shadow-lg rounded-2xl mb-8">
-                    <CardContent>
-                        <SyntaxHighlighter 
-                        language={question.language?.toLowerCase()}
-                        style={oneDark} 
-                        showLineNumbers
-                        customStyle={{
-                            backgroundColor: "transparent",
-                            padding: "0.75rem",
-                            fontSize: "0.9rem",
-                          }}
-                          codeTagProps={{
-                            style: { fontFamily: "monospace" },
-                          }}
-                        className="rounded-xl mt-4">
-                            {question.codeSnippet}
-                        </SyntaxHighlighter>
-                    </CardContent>
-                </Card>
+              <CodeSnippet question={question}/>
             )}
 
           <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">

@@ -18,6 +18,7 @@ import { motion } from 'framer-motion'
 import { FcGoogle } from 'react-icons/fc'
 import ProtectedRoutes from '../components/ProtectedRoutes';
 import { MoonLoader } from 'react-spinners';
+import Loader from '../components/Loader';
 
 const page = () => {
     const router = useRouter();
@@ -43,11 +44,9 @@ const page = () => {
 
       if(loading){
         return(
-          <div className="flex items-center justify-center min-h-screen bg-black">
-            <MoonLoader color="#00f7ff" size={60} />
-          </div>
+          <Loader/>
         )
-      }
+    }
 }
 
   return (

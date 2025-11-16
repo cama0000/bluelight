@@ -2,14 +2,16 @@
 
 import ProtectedRoutes from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
-import { getQuestionById, submitLikeDislike } from "@/services/question";
-import type { AnswerRequest, Question, VoteRequest } from "@/types/question";
+import { getQuestionById, submitFavorite, submitLikeDislike } from "@/services/question";
+import type { AnswerRequest, FavoriteRequest, Question, VoteRequest } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button"
+import { Star } from "lucide-react";
+
 import {
   Card,
   CardAction,
@@ -131,6 +133,38 @@ const Question = () => {
         }
     }
 
+    async function handleFavorite(){
+        if (!user || !question) return;
+
+        try {
+
+            setQuestion((prev) => {
+                if (!prev) return prev;
+                const updated = {
+                  ...prev,
+                  isFavorited: !prev.isFavorited,
+                };
+                return updated;
+              });
+
+            const favoriteRequestBody: FavoriteRequest = {
+              userId: user.firebaseUid,
+              questionId: question.id,
+            };
+
+          const data: Question = await submitFavorite(favoriteRequestBody, user.token);
+
+          setQuestion(prev => ({
+            ...prev!,
+            isFavorited: data.isFavorited
+          }));
+
+        } catch (error) {
+            console.log("Error favoriting question:", error);
+        }
+            
+    }
+
     async function handleLikeDislike(didLike: boolean) {
         if (!user || !question) return;
       
@@ -179,7 +213,7 @@ const Question = () => {
         >
           <h1 className="text-5xl font-bold text-blue-300 mb-2 flex items-center justify-center gap-3">
             {question?.title}
-            {question?.correct && (
+            {question?.isCorrect && (
                 <CheckCircle className="text-green-400 w-8 h-8" />
             )}
           </h1>
@@ -242,6 +276,18 @@ const Question = () => {
                 </Button>
                 <span className="text-red-500 text-s">{question?.dislikes}</span>
 
+                <Button
+                    onClick={handleFavorite}
+                    className={`p-1 bg-transparent hover:bg-transparent hover:cursor-pointer hover:scale-125 ${
+                        question?.isFavorited ? "text-yellow-400" : "text-zinc-400"
+                    }`}
+                    >
+                    <Star
+                        size={18}
+                        className={question?.isFavorited ? "fill-yellow-400 text-yellow-400" : ""}
+                    />
+                </Button>
+
                 </div>
             </div>
         </motion.div>
@@ -303,7 +349,7 @@ const Question = () => {
                 
                     let finalClasses = defaultClasses;
                 
-                    if (selectedAnswer !== null || question.isCorrect) {
+                    if (selectedAnswer !== null) {
                         if ((isSelected && isCorrect) || (question.isCorrect && isChoiceCorrect)) {
                         finalClasses = correctClasses + " pointer-events-none";
                         } else if (isSelected && !isCorrect) {
@@ -319,7 +365,7 @@ const Question = () => {
                         <Button
                         key={index}
                         onClick={() => {
-                            if (!question.isCorrect && selectedAnswer === null) {
+                            if (selectedAnswer === null) {
                             handleAnswerSelect(index);
                             }
                         }}
@@ -328,7 +374,7 @@ const Question = () => {
                         >
                         <span
                             className={`font-medium mr-3 ${
-                            selectedAnswer !== null || question.isCorrect
+                            selectedAnswer !== null
                                 ? isChoiceCorrect
                                 ? "text-green-400"
                                 : isSelected

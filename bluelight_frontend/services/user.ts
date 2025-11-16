@@ -51,3 +51,16 @@ export const getCompletedQuestions = async(token : string): Promise<Question[]> 
 
     return response.data;
 }
+
+export const getFavoritedQuestions = async(token : string): Promise<Question[]> => {
+  const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_HOST_NAME}questions/getFavoritedQuestions`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+}

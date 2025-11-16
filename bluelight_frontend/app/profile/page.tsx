@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { User, Mail, Trophy, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCompletedQuestions } from "@/services/user";
+import { getCompletedQuestions, getFavoritedQuestions } from "@/services/user";
 import Link from "next/link";
 
 
@@ -24,10 +24,13 @@ const ProfilePage = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [favoritedQuestions, setFavoritedQuestions] = useState<Question[]>([]);
+
 
     useEffect(() => {
         if(user?.token){
             fetchCompletedQuestions();
+            fetchFavoritedQuestions();
         }
 
     }, [user?.firebaseUid]);
@@ -41,12 +44,29 @@ const ProfilePage = () => {
         try{
             const data: Question[] = await getCompletedQuestions(user.token);
 
-            console.log("DATA: " + data)
-
             setQuestions(data);
         }
         catch(error){
             console.log("Error fetching completed questions: " + error);
+        }
+        finally{
+            setLoading(false);
+        }
+    }
+
+    async function fetchFavoritedQuestions(){
+        if(!user?.token){
+            console.error("User not authenticated.");
+            return;
+        }
+        
+        try{
+            const data: Question[] = await getFavoritedQuestions(user.token);
+
+            setFavoritedQuestions(data);
+        }
+        catch(error){
+            console.log("Error fetching favorited questions: " + error);
         }
         finally{
             setLoading(false);
@@ -131,10 +151,10 @@ const ProfilePage = () => {
                       <div className="flex items-center gap-4">
                         <span
                           className={`text-sm font-semibold ${
-                            q.correct ? "text-green-400" : "text-red-400"
+                            q.isCorrect ? "text-green-400" : "text-red-400"
                           }`}
                         >
-                          {q.correct ? "✔ Correct" : "✖ Incorrect"}
+                          {q.isCorrect ? "✔ Correct" : "✖ Incorrect"}
                         </span>
                         <span
                           className={`text-xs rounded-full px-2 py-0.5 border ${
@@ -168,7 +188,41 @@ const ProfilePage = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-zinc-400"></p>
+      <CardContent>
+  {favoritedQuestions.length === 0 ? (
+    <p className="text-zinc-400">No favorited questions.</p>
+  ) : (
+    <ul className="divide-y divide-zinc-800">
+      {favoritedQuestions.map((q) => (
+        <li
+          key={q.id}
+          className="py-3 flex justify-between items-center text-zinc-300"
+        >
+          <Link
+            href={`/questions/${encodeURIComponent(q.id)}/${encodeURIComponent(q.title)}`}
+          >
+            <span className="font-medium hover:cursor-pointer hover:text-blue-400 hover:underline">
+              {q.title}
+            </span>
+          </Link>
+
+          <span
+            className={`text-xs rounded-full px-2 py-0.5 border ${
+              q.difficulty === "EASY"
+                ? "text-green-400 border-green-700/40"
+                : q.difficulty === "MEDIUM"
+                ? "text-yellow-400 border-yellow-700/40"
+                : "text-red-400 border-red-700/40"
+            }`}
+          >
+            {q.difficulty}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )}
+</CardContent>
+
       </CardContent>
     </Card>
   </div>

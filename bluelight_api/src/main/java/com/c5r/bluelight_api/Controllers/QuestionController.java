@@ -7,8 +7,12 @@ import com.c5r.bluelight_api.Question.QuestionService;
 import com.c5r.bluelight_api.QuestionLike.QuestionLike;
 import com.c5r.bluelight_api.QuestionLike.QuestionLikeService;
 import com.c5r.bluelight_api.QuestionLike.VoteRequest;
+import com.c5r.bluelight_api.UserFavorite.FavoriteRequest;
+
 import com.c5r.bluelight_api.User.User;
 import com.c5r.bluelight_api.User.UserService;
+import com.c5r.bluelight_api.UserFavorite.UserFavorite;
+import com.c5r.bluelight_api.UserFavorite.UserFavoriteService;
 import com.c5r.bluelight_api.UserQuestion.UserQuestion;
 import com.c5r.bluelight_api.UserQuestion.UserQuestionService;
 import com.google.firebase.auth.FirebaseToken;
@@ -35,6 +39,8 @@ public class QuestionController {
     private UserService userService;
     @Autowired
     private QuestionLikeService questionLikeService;
+    @Autowired
+    private UserFavoriteService userFavoriteService;
 
     @PostMapping("/save")
     public ResponseEntity<?> saveQuestion(@RequestHeader("Authorization") String authHeader,
@@ -74,7 +80,7 @@ public class QuestionController {
 
                 // required to send in isLiked and isDisliked. Just sending in false since we do not display
                 // whether the user liked or disliked a question on this page at the moment
-                questionResponses.add(new QuestionResponse(question, isCorrect, false, false));
+                questionResponses.add(new QuestionResponse(question, isCorrect, false, false, false));
             });
 
             return ResponseEntity.ok(questionResponses);
@@ -83,6 +89,90 @@ public class QuestionController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching questions: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/getCompletedQuestions")
+    public ResponseEntity<?> getCompletedQuestions(@RequestHeader("Authorization") String authHeader) {
+        try{
+            String idToken = authHeader.replace("Bearer ", "");
+            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
+
+            String firebaseId = firebaseToken.getUid();
+
+            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
+
+            if(checkUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("User not found");
+            }
+
+            User user = checkUser.get();
+
+            boolean isCorrect = true;
+
+            List<UserQuestion> userQuestions = userQuestionService.findAllByUserId(user.getId());
+            List<QuestionResponse> questionResponses = new ArrayList<>();
+
+            for (UserQuestion userQuestion : userQuestions) {
+                Optional<Question> question = questionService.findById(userQuestion.getQuestionId());
+
+                if (question.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Question not found");
+                }
+
+                questionResponses.add(new QuestionResponse(question.get(), userQuestion.getWasCorrect(), false, false, false));
+            }
+
+            return ResponseEntity.ok(questionResponses);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching completed questions: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/getFavoritedQuestions")
+    public ResponseEntity<?> getFavoritedQuestions(@RequestHeader("Authorization") String authHeader) {
+        try{
+            final String idToken = authHeader.replace("Bearer ", "");
+            final FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
+
+            final String firebaseId = firebaseToken.getUid();
+
+            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
+
+            if(checkUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("User not found");
+            }
+
+            final User user = checkUser.get();
+
+            boolean isCorrect = true;
+
+            List<UserFavorite> userFavorites = userFavoriteService.findAllByUserId(user.getId());
+            List<QuestionResponse> questionResponses = new ArrayList<>();
+
+            for (UserFavorite userFavorite : userFavorites) {
+                Optional<Question> question = questionService.findById(userFavorite.getQuestionId());
+
+                if (question.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Question not found");
+                }
+
+                questionResponses.add(new QuestionResponse(question.get(), false, false, false, true));
+            }
+
+            return ResponseEntity.ok(questionResponses);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching completed questions: " + e.getMessage());
         }
     }
 
@@ -100,16 +190,18 @@ public class QuestionController {
                         .body("User not found");
             }
 
-            User user = checkUser.get();
+            final User user = checkUser.get();
 
             Optional<Question> checkQuestion = questionService.findById(questionId);
             Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(user.getId(), questionId);
             Optional<QuestionLike> checkQuestionLike = questionLikeService.findByUserIdAndQuestionId(user.getId(), questionId);
+            Optional<UserFavorite> checkUserFavorite = userFavoriteService.findByUserIdAndQuestionId(user.getId(), questionId);
+
 
             boolean wasCorrect = false;
             boolean wasLiked = false;
             boolean wasDisliked = false;
-
+            boolean wasFavorited = false;
 
             if(checkQuestion.isPresent()){
                 Question question = checkQuestion.get();
@@ -125,7 +217,12 @@ public class QuestionController {
                     wasDisliked = questionLike.getWasDisliked();
                 }
 
-                QuestionResponse questionResponse = new QuestionResponse(question, wasCorrect, wasLiked, wasDisliked);
+                if(checkUserFavorite.isPresent()){
+                    UserFavorite userFavorite = checkUserFavorite.get();
+                    wasFavorited = true;
+                }
+
+                QuestionResponse questionResponse = new QuestionResponse(question, wasCorrect, wasLiked, wasDisliked, wasFavorited);
 
                 return ResponseEntity.ok(questionResponse);
             }
@@ -236,12 +333,64 @@ public class QuestionController {
 
 
 
-            return ResponseEntity.ok(new QuestionResponse(question, isCorrect, finalLiked, finalDisliked));
+            return ResponseEntity.ok(new QuestionResponse(question, isCorrect, finalLiked, finalDisliked, false));
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error saving like/dislike: " + e.getMessage());
+        }
+    }
+
+
+
+
+    @PostMapping("/submitFavorite")
+    public ResponseEntity<?> submitFavorite(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody FavoriteRequest favoriteRequestBody) {
+
+        try {
+            String idToken = authHeader.replace("Bearer ", "");
+            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
+            String firebaseId = firebaseToken.getUid();
+
+            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
+            if (checkUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            final User user = checkUser.get();
+            final int userId = user.getId();
+            final int questionId = favoriteRequestBody.getQuestionId();
+
+            Optional<Question> checkQuestion = questionService.findById(questionId);
+            if(checkQuestion.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
+            }
+
+            final Question question = checkQuestion.get();
+
+            Optional<UserFavorite> userFavoriteOpt =
+                    userFavoriteService.findByUserIdAndQuestionId(userId, questionId);
+
+            boolean favorited = false;
+
+            if(userFavoriteOpt.isEmpty()) {
+                userFavoriteService.save(new UserFavorite(userId, questionId));
+                favorited = true;
+            }
+            else{
+                UserFavorite userFavorite = userFavoriteOpt.get();
+                userFavoriteService.delete(userFavorite);
+            }
+
+            return ResponseEntity.ok(new QuestionResponse(question, false, false, false, favorited));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error favoriting question: " + e.getMessage());
         }
     }
 

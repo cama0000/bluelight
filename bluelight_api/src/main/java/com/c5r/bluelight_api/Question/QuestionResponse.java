@@ -22,6 +22,7 @@ public class QuestionResponse {
     private int likes;
     private int dislikes;
 
+    @JsonProperty(value="isCorrect")
     private boolean isCorrect;
 
     @JsonProperty(value="isLiked")
@@ -30,8 +31,11 @@ public class QuestionResponse {
     @JsonProperty(value="isDisliked")
     private boolean isDisliked;
 
+    @JsonProperty(value="isFavorited")
+    private boolean isFavorited;
 
-    public QuestionResponse(Question question, boolean isCorrect, boolean isLiked, boolean isDisliked) {
+
+    public QuestionResponse(Question question, boolean isCorrect, boolean isLiked, boolean isDisliked, boolean isFavorited) {
         this.id = question.getId();
         this.title = question.getTitle();
         this.prompt = question.getPrompt();
@@ -50,6 +54,7 @@ public class QuestionResponse {
         this.isCorrect = isCorrect;
         this.isLiked = isLiked;
         this.isDisliked = isDisliked;
+        this.isFavorited = isFavorited;
     }
 
     public Integer getId() { return id; }
@@ -70,6 +75,7 @@ public class QuestionResponse {
     public boolean isCorrect() { return isCorrect; }
     public boolean isLiked() { return isLiked; }
     public boolean isDisliked() { return isDisliked; }
+    public boolean isFavorited() { return isFavorited; }
 
 
     @Override

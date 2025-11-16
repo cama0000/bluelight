@@ -19,4 +19,11 @@ public class UserQuestionService {
     public Optional<UserQuestion> findByUserIdAndQuestionId(Integer id, Integer questionId) {
         return userQuestionRepository.findByUserIdAndQuestionId(id, questionId);
     }
+    public List<UserQuestion> findAllByUserIdAndWasCorrect(Integer id, boolean wasCorrect) {
+        return userQuestionRepository.findAllByUserIdAndWasCorrect(id, wasCorrect);
+    }
+
+    public List<UserQuestion> findAllByUserId(Integer id) {
+        return userQuestionRepository.findAllByUserId(id);
+    }
 }

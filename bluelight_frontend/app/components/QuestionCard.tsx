@@ -33,7 +33,7 @@ const QuestionCard = ({question}: QuestionProps) => {
                 {question.title}
               </h2>
 
-              {question.correct && (
+              {question.isCorrect && (
                 <span className="text-green-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

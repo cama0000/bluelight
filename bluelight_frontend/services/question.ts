@@ -1,4 +1,4 @@
-import { Question, QuestionRequest, VoteRequest } from "@/types/question";
+import { FavoriteRequest, Question, QuestionRequest, VoteRequest } from "@/types/question";
 import axios from "axios";
 
 export const saveQuestion = async(questionBody : QuestionRequest, token : string) => {
@@ -45,6 +45,19 @@ export const getQuestionById = async(questionId: string, token : string): Promis
 export const submitLikeDislike = async(voteRequestBody : VoteRequest, token : string): Promise<Question> => {
   const response = await axios.post(
       `${process.env.NEXT_PUBLIC_HOST_NAME}questions/submitLikeDislike`, voteRequestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+}
+
+export const submitFavorite = async(favoriteRequestBody : FavoriteRequest, token : string): Promise<Question> => {
+  const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_HOST_NAME}questions/submitFavorite`, favoriteRequestBody,
       {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -11,6 +11,7 @@ export interface Question{
     isCorrect?: boolean,
     isLiked?: boolean,
     isDisliked?: boolean,
+    isFavorited?: boolean,
     freeResponseAnswer?: string,
     explanation?: string,
     codeSnippet?: string,
@@ -29,6 +30,11 @@ export interface VoteRequest{
     userId: string,
     questionId: number,
     isLiked: boolean
+}
+
+export interface FavoriteRequest{
+    userId: string,
+    questionId: number,
 }
 
 // export interface QuestionResponse{

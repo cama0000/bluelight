@@ -49,28 +49,55 @@ export interface FavoriteRequest{
 
 export type QuestionRequest = Omit<Question, "id">;
 
-export enum Category{
-    ALGORITHMS = "Algorithms",
-    DATA_STRUCTURES = "Data Structures",
-    DATABASES = "Databases",
-    OPERATING_SYSTEMS = "Operating Systems",
-    NETWORKING = "Networking",
-    WEB_DEVELOPMENT = "Web Development",
-    LANGUAGES = "Languages"
+export enum Category {
+    ALGORITHMS = "ALGORITHMS",
+    DATA_STRUCTURES = "DATA_STRUCTURES",
+    DATABASES = "DATABASES",
+    OPERATING_SYSTEMS = "OPERATING_SYSTEMS",
+    NETWORKING = "NETWORKING",
+    WEB_DEVELOPMENT = "WEB_DEVELOPMENT",
+    LANGUAGES = "LANGUAGES"
 }
+  
 
-export enum Difficulty{
-    EASY = "Easy",
-    MEDIUM = "Medium",
-    HARD = "Hard",
+export enum Difficulty {
+    EASY = "EASY",
+    MEDIUM = "MEDIUM",
+    HARD = "HARD",
     FAANG = "FAANG"
 }
 
-export enum QuestionType{
-    MULTIPLE_CHOICE = "Multiple Choice",
-    FREE_RESPONSE = "Free Response",
-    CODING = "Coding"
+export enum QuestionType {
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE",
+    FREE_RESPONSE = "FREE_RESPONSE",
+    CODING = "CODING",
 }
+
+export const DifficultyLabels: Record<Difficulty, string> = {
+    [Difficulty.EASY]: "Easy",
+    [Difficulty.MEDIUM]: "Medium",
+    [Difficulty.HARD]: "Hard",
+    [Difficulty.FAANG]: "FAANG"
+};
+
+export const CategoryLabels: Record<Category, string> = {
+    [Category.ALGORITHMS]: "Algorithms",
+    [Category.DATA_STRUCTURES]: "Data Structures",
+    [Category.DATABASES]: "Databases",
+    [Category.OPERATING_SYSTEMS]: "Operating Systems",
+    [Category.NETWORKING]: "Networking",
+    [Category.WEB_DEVELOPMENT]: "Web Development",
+    [Category.LANGUAGES]: "Languages"
+};
+
+  
+
+export const QuestionTypeLabels: Record<QuestionType, string> = {
+    [QuestionType.MULTIPLE_CHOICE]: "Multiple Choice",
+    [QuestionType.FREE_RESPONSE]: "Free Response",
+    [QuestionType.CODING]: "Coding",
+};
+  
 
 export enum Language{
     JAVA = "Java",

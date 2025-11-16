@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Category, Difficulty, Question, QuestionRequest, QuestionType } from "@/types/question";
+import { Category, CategoryLabels, Difficulty, Question, QuestionRequest, QuestionType } from "@/types/question";
 import { getAllQuestions, saveQuestion } from "@/services/question";
 import { MoonLoader } from "react-spinners";
 import { Input } from "@/components/ui/input";
@@ -33,36 +33,36 @@ const QuestionsPage = () => {
 
     }, [user?.firebaseUid])
 
-    async function handleMakeQuestion(){
-        if(!user?.token){
-            console.error("User not authenticated.");
-            return;
-        }
+    // async function handleMakeQuestion(){
+    //     if(!user?.token){
+    //         console.error("User not authenticated.");
+    //         return;
+    //     }
         
-        try{
-            const questionBody: QuestionRequest = {
-                    title: "Too Lazy to Load",
-                    prompt: "What is the main benefit of lazy loading in web applications?",
-                    category: Category.WEB_DEVELOPMENT,
-                    difficulty: Difficulty.MEDIUM,
-                    type: QuestionType.MULTIPLE_CHOICE,
-                    answerChoices: [
-                      "Improving SEO ranking",
-                      "Loading content only when needed to reduce initial load time",
-                      "Increasing server request rate",
-                      "Preloading all images for smoother scrolling"
-                    ],
-                    answerIndex: 1
+    //     try{
+    //         const questionBody: QuestionRequest = {
+    //                 title: "Too Lazy to Load",
+    //                 prompt: "What is the main benefit of lazy loading in web applications?",
+    //                 category: Category.WEB_DEVELOPMENT,
+    //                 difficulty: Difficulty.MEDIUM,
+    //                 type: QuestionType.MULTIPLE_CHOICE,
+    //                 answerChoices: [
+    //                   "Improving SEO ranking",
+    //                   "Loading content only when needed to reduce initial load time",
+    //                   "Increasing server request rate",
+    //                   "Preloading all images for smoother scrolling"
+    //                 ],
+    //                 answerIndex: 1
                     
                     
-            }
+    //         }
 
-            await saveQuestion(questionBody, user?.token);
-        }
-        catch(error){
-            console.log("Error making questions: " + error);
-        }
-    }
+    //         await saveQuestion(questionBody, user?.token);
+    //     }
+    //     catch(error){
+    //         console.log("Error making questions: " + error);
+    //     }
+    // }
 
     async function fetchQuestions(){
         if(!user?.token){
@@ -79,6 +79,7 @@ const QuestionsPage = () => {
             console.log("Error fetching questions: " + error);
         }
         finally{
+
             setLoading(false);
         }
     }
@@ -148,7 +149,7 @@ const QuestionsPage = () => {
               : "bg-zinc-900/70 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700"
           }`}
       >
-        {cat}
+        {CategoryLabels[cat]}
       </button>
     ))}
   </div>

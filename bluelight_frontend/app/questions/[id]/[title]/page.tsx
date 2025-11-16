@@ -3,14 +3,14 @@
 import ProtectedRoutes from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
 import { getQuestionById, submitFavorite, submitLikeDislike } from "@/services/question";
-import type { AnswerRequest, FavoriteRequest, Question, VoteRequest } from "@/types/question";
+import { Category, CategoryLabels, Difficulty, DifficultyLabels, QuestionType, type AnswerRequest, type FavoriteRequest, type Question, type VoteRequest } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react";
+import { Star, Type } from "lucide-react";
 
 import {
   Card,
@@ -218,35 +218,41 @@ const Question = () => {
             )}
           </h1>
           
+
           <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
-            <Badge
-              className={`text-[10px] px-2 py-0.5 rounded-full ${
-                question.difficulty === "EASY"
-                  ? "bg-green-600/20 text-green-400 border border-green-700/40"
-                  : question.difficulty === "MEDIUM"
-                  ? "bg-yellow-600/20 text-yellow-400 border border-yellow-700/40"
-                  : question.difficulty === "HARD"
-                  ? "bg-red-600/20 text-red-400 border border-red-700/40"
-                  : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
-              }`}
-            >
-              {question?.difficulty}
-            </Badge>
-
-            <Badge
-              className={`text-[10px] px-2 py-0.5 rounded-full ${
-                question.category === "LANGUAGES"
-                  ? "bg-purple-600/20 text-purple-400 border border-purple-700/40"
-                  : question.category === "DATABASES"
-                  ? "bg-blue-600/20 text-blue-400 border border-blue-700/40"
-                  : "bg-zinc-800/50 text-zinc-300 border border-zinc-700/40"
-              }`}
-            >
-              {question?.category}
-            </Badge>
 
 
+            {question && (
+              <>
+                <Badge
+                className={`text-[10px] px-2 py-0.5 rounded-full ${
+                  question?.difficulty === Difficulty.EASY
+                    ? "bg-green-600/20 text-green-400 border border-green-700/40"
+                    : question?.difficulty === Difficulty.MEDIUM
+                    ? "bg-yellow-600/20 text-yellow-400 border border-yellow-700/40"
+                    : question?.difficulty === Difficulty.HARD
+                    ? "bg-red-600/20 text-red-400 border border-red-700/40"
+                    : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
+                }`}
+              >
+                  {DifficultyLabels[question.difficulty]}
+              </Badge>
 
+              <Badge
+                className={`text-[10px] px-2 py-0.5 rounded-full ${
+                  question?.category === Category.LANGUAGES
+                    ? "bg-purple-600/20 text-purple-400 border border-purple-700/40"
+                    : question?.category === Category.DATABASES
+                    ? "bg-blue-600/20 text-blue-400 border border-blue-700/40"
+                    : "bg-zinc-800/50 text-zinc-300 border border-zinc-700/40"
+                }`}
+              >
+                {CategoryLabels[question?.category]}
+
+              </Badge>
+              </>
+            )}
+            
 
             <div className="h-4 w-px bg-zinc-700"></div>
 
@@ -330,7 +336,7 @@ const Question = () => {
             )}
 
           <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">
-                {question?.type === "MULTIPLE_CHOICE" && (
+                {question?.type === QuestionType.MULTIPLE_CHOICE && (
                     <CardContent className="mt-4 space-y-3">
                     {question?.answerChoices?.map((choice, index) => {
                     const isSelected = selectedAnswer === index;
@@ -394,7 +400,7 @@ const Question = () => {
                   </CardContent>
                 )}
 
-                {question?.type === "FREE_RESPONSE" && (
+                {question?.type === QuestionType.FREE_RESPONSE && (
                     <CardContent className="mt-1 space-y-6">
                         <div className="space-y-4">
                             <Input

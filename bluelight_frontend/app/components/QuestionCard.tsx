@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Category, Question, QuestionType } from "@/types/question";
+import { Category, CategoryLabels, Difficulty, DifficultyLabels, Question, QuestionType, QuestionTypeLabels } from "@/types/question";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -51,11 +51,10 @@ const QuestionCard = ({question}: QuestionProps) => {
               )}
             </div>
 
-  <div className="text-xs text-zinc-400 mt-0.5">
-    {QuestionType[
-      question.type as unknown as keyof typeof QuestionType
-    ] ?? question.type}
-  </div>
+            <div className="text-xs text-zinc-400 mt-0.5">
+              {QuestionTypeLabels[
+                question.type]}
+            </div>
 </div>
 
 
@@ -71,24 +70,23 @@ const QuestionCard = ({question}: QuestionProps) => {
                 : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
                 }`}
                 >
-                    {Category[
-                    question.category as unknown as keyof typeof Category
-                    ] ?? question.category}
+                  {CategoryLabels[question.category]}
             </Badge>
 
             <Badge
-            className={`text-[10px] px-2 py-0.5 rounded-full ${
-            question.difficulty === "EASY"
-            ? "bg-green-600/20 text-green-400 border border-green-700/40"
-            : question.difficulty === "MEDIUM"
-            ? "bg-yellow-600/20 text-yellow-400 border border-yellow-700/40"
-            : question.difficulty === "HARD"
-            ? "bg-red-600/20 text-red-400 border border-red-700/40"
-            : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
-            }`}
+              className={`text-[10px] px-2 py-0.5 rounded-full ${
+                question.difficulty === Difficulty.EASY
+                  ? "bg-green-600/20 text-green-400 border border-green-700/40"
+                  : question.difficulty === Difficulty.MEDIUM
+                  ? "bg-yellow-600/20 text-yellow-400 border border-yellow-700/40"
+                  : question.difficulty === Difficulty.HARD
+                  ? "bg-red-600/20 text-red-400 border border-red-700/40"
+                  : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text border border-blue-700/40"
+              }`}
             >
-                {question.difficulty}
-            </Badge>
+  {DifficultyLabels[question.difficulty]}
+</Badge>
+
         </div>
 
         </div>

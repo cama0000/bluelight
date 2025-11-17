@@ -1,9 +1,13 @@
-export function shuffleArray<T>(array: T[]): T[] {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
+export function shuffleChoices(choices: string[], correctIndex: number) {
+    const array = [...choices];
+    const correctValue = choices[correctIndex];
+  
+    for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+      [array[i], array[j]] = [array[j], array[i]];
     }
-    return arr;
+  
+    const newCorrectIndex = array.indexOf(correctValue);
+    return { array, newCorrectIndex };
   }
   

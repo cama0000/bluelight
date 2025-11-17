@@ -22,10 +22,12 @@ import { Badge } from "@/components/ui/badge";
 import { answerQuestion } from "@/services/user";
 import { CheckCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import CodeSnippet from "@/app/components/CodeSnippet";
 import Loader from "@/app/components/Loader";
+import { shuffleChoices } from "@/app/utils/misc";
+
+// TODO: doesnt render answrr chices when answerindex is 0 in the db GET IT TOGEHER QUESTION
+
 
 const Question = () => {
     const {user} = useAuth();
@@ -34,6 +36,7 @@ const Question = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [question, setQuestion] = useState<Question | null>(null);
+    const [shuffledChoices, setShuffledChoices] = useState<string[]>([]);
     const [response, setResponse] = useState<string>("");
     const params = useParams<{id: string, title: string}>();
 
@@ -54,6 +57,14 @@ const Question = () => {
             setLoading(true);
             const data: Question = await getQuestionById(params.id, user.token);
             setQuestion(data);
+
+            if(data.answerChoices && data.answerIndex !== null && data.answerIndex !== undefined){
+              const {array, newCorrectIndex} = shuffleChoices(data.answerChoices, data.answerIndex);  
+              
+              setShuffledChoices(array);
+              setQuestion({...data, answerIndex: newCorrectIndex});
+              
+            }
         }
         catch(error){
             console.log("Error fetching question: " + error);
@@ -315,7 +326,8 @@ const Question = () => {
           <Card className="border-border/60 shadow-sm rounded-2xl bg-zinc-900/80 border border-zinc-800">
                 {question?.type === QuestionType.MULTIPLE_CHOICE && (
                     <CardContent className="mt-4 space-y-3">
-                    {question?.answerChoices?.map((choice, index) => {
+
+                    {shuffledChoices.map((choice, index) => {
                     const isSelected = selectedAnswer === index;
                     const isChoiceCorrect = question.answerIndex === index;
                 
@@ -349,7 +361,7 @@ const Question = () => {
                         key={index}
                         onClick={() => {
                             if (selectedAnswer === null) {
-                            handleAnswerSelect(index);
+                              handleAnswerSelect(index);
                             }
                         }}
                         variant="outline"
@@ -368,7 +380,7 @@ const Question = () => {
                         >
                             {String.fromCharCode(65 + index)}.
                         </span>
-                        {choice}
+                          {choice}
                         </Button>
                         
                     );

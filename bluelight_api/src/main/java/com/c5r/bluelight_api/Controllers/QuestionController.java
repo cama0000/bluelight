@@ -1,5 +1,6 @@
 package com.c5r.bluelight_api.Controllers;
 
+import com.c5r.bluelight_api.Comment.CommentService;
 import com.c5r.bluelight_api.Firebase.FirebaseService;
 import com.c5r.bluelight_api.Question.Question;
 import com.c5r.bluelight_api.Question.QuestionResponse;
@@ -22,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +41,8 @@ public class QuestionController {
     private QuestionLikeService questionLikeService;
     @Autowired
     private UserFavoriteService userFavoriteService;
+    @Autowired
+    private CommentService commentService;
 
     @PostMapping("/save")
     public ResponseEntity<?> saveQuestion(@RequestHeader("Authorization") String authHeader,
@@ -97,7 +99,6 @@ public class QuestionController {
         try{
             String idToken = authHeader.replace("Bearer ", "");
             FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-
             String firebaseId = firebaseToken.getUid();
 
             Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
@@ -139,7 +140,6 @@ public class QuestionController {
         try{
             final String idToken = authHeader.replace("Bearer ", "");
             final FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-
             final String firebaseId = firebaseToken.getUid();
 
             Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
@@ -266,7 +266,6 @@ public class QuestionController {
 
             Optional<QuestionLike> checkQuestionLike =
                     questionLikeService.findByUserIdAndQuestionId(userId, questionId);
-
 
             boolean isCorrect = false;
             Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(userId, questionId);

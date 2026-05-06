@@ -17,6 +17,7 @@ import com.c5r.bluelight_api.UserFavorite.UserFavoriteService;
 import com.c5r.bluelight_api.UserQuestion.UserQuestion;
 import com.c5r.bluelight_api.UserQuestion.UserQuestionService;
 import com.google.firebase.auth.FirebaseToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 @RequestMapping("/questions")
 public class QuestionController {
     @Autowired
@@ -55,7 +57,7 @@ public class QuestionController {
             return ResponseEntity.ok(question);
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error saving question: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error saving question: " + e.getMessage());
         }
@@ -69,7 +71,6 @@ public class QuestionController {
 
             List<Question> questions = questionService.findAll();
             List<QuestionResponse> questionResponses = new ArrayList<>();
-
 
             questions.forEach(question -> {
                 Optional<UserQuestion> userQuestion = userQuestionService.findByQuestionId(question.getId());
@@ -88,7 +89,7 @@ public class QuestionController {
             return ResponseEntity.ok(questionResponses);
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error fetching all questions: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching questions: " + e.getMessage());
         }
@@ -129,7 +130,7 @@ public class QuestionController {
             return ResponseEntity.ok(questionResponses);
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error fetching completed questions for user: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching completed questions: " + e.getMessage());
         }
@@ -170,7 +171,7 @@ public class QuestionController {
             return ResponseEntity.ok(questionResponses);
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error fetching favorited questions for user: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching completed questions: " + e.getMessage());
         }
@@ -231,7 +232,7 @@ public class QuestionController {
             }
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error fetching question with ID {{}}: {}", questionId, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching questions: " + e.getMessage());
         }
@@ -335,7 +336,7 @@ public class QuestionController {
             return ResponseEntity.ok(new QuestionResponse(question, isCorrect, finalLiked, finalDisliked, false));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error submitting like/dislike for question with ID: {{}}: {}", voteRequestBody.getQuestionId(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error saving like/dislike: " + e.getMessage());
         }
@@ -387,7 +388,7 @@ public class QuestionController {
             return ResponseEntity.ok(new QuestionResponse(question, false, false, false, favorited));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error submitting favorite for question with ID: {{}}: {}", favoriteRequestBody.getQuestionId(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error favoriting question: " + e.getMessage());
         }

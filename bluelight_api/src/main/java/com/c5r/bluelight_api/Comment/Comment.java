@@ -56,7 +56,7 @@ public class Comment {
     @Column(
             name = "UPDATED_AT"
     )
-    private LocalDateTime updatedAt   = LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public Comment(){
     }

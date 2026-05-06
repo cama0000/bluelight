@@ -1,5 +1,6 @@
 package com.c5r.bluelight_api.QuestionLike;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,11 +8,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class QuestionLikeService {
     @Autowired
     QuestionLikeRepository questionLikeRepository;
 
-    public QuestionLike save(QuestionLike questionLike){ return questionLikeRepository.save(questionLike);}
+    public QuestionLike save(QuestionLike questionLike){
+        log.info("Saved question like with question ID: {{}}", questionLike.getQuestionId());
+        return questionLikeRepository.save(questionLike);
+    }
+
     public void delete(QuestionLike questionLike){ questionLikeRepository.delete(questionLike);};
     public List<QuestionLike> findAll(){ return questionLikeRepository.findAll();}
     public Optional<QuestionLike> findById(long id){ return questionLikeRepository.findById(id);}

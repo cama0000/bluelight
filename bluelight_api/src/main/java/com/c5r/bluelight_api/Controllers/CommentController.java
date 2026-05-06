@@ -8,15 +8,18 @@ import com.c5r.bluelight_api.Question.QuestionService;
 import com.c5r.bluelight_api.User.User;
 import com.c5r.bluelight_api.User.UserService;
 import com.google.firebase.auth.FirebaseToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 @RequestMapping("/comments")
 public class CommentController {
 
@@ -62,7 +65,7 @@ public class CommentController {
             return ResponseEntity.ok(comment);
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error saving comment on question with ID: {{}}: {}", commentRequest.getQuestionId(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error saving comment: " + e.getMessage());
         }
@@ -92,7 +95,7 @@ public class CommentController {
             }
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("Error fetching comments for question with ID: {{}}: {}", questionId, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching comments: " + e.getMessage());
         }

@@ -7,16 +7,14 @@ import com.c5r.bluelight_api.Question.Question;
 import com.c5r.bluelight_api.Question.QuestionService;
 import com.c5r.bluelight_api.User.User;
 import com.c5r.bluelight_api.User.UserService;
-import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -36,68 +34,34 @@ public class CommentController {
     private UserService userService;
 
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/save")
-    public ResponseEntity<?> saveComment(@RequestHeader("Authorization") String authHeader,
-                                          @RequestBody Comment commentRequest) {
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            String firebaseId = firebaseToken.getUid();
+    public ResponseEntity<Comment> saveComment(@RequestBody Comment commentRequest) {
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                                        .getAuthentication()
+                                        .getPrincipal();
 
-            final Optional<User> userOpt = userService.findByFirebaseUid(firebaseId);
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
-            if(userOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User not found");
-            }
+        final Comment comment = new Comment(
+                commentRequest.getQuestionId(),
+                user.getId(),
+                user.getUsername(),
+                commentRequest.getContent()
+        );
 
-            final User user = userOpt.get();
+        Comment savedComment = commentService.save(comment);
 
-            final Comment comment = new Comment(
-                    commentRequest.getQuestionId(),
-                    user.getId(),
-                    user.getUsername(),
-                    commentRequest.getContent()
-            );
-
-            commentService.save(comment);
-
-            return ResponseEntity.ok(comment);
-        }
-        catch(Exception e){
-            log.error("Error saving comment on question with ID: {{}}: {}", commentRequest.getQuestionId(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error saving comment: " + e.getMessage());
-        }
+        return ResponseEntity.ok(savedComment);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getCommentsByQuestionId/{questionId}")
-    public ResponseEntity<?> getCommentsByQuestionId(@RequestHeader("Authorization") String authHeader, @PathVariable Integer questionId) {
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            String firebaseId = firebaseToken.getUid();
+    public ResponseEntity<List<Comment>> getCommentsByQuestionId(@PathVariable Integer questionId) {
+        final Question question = questionService.findById(questionId).orElseThrow();
 
-            final Optional<Question> checkQuestion = questionService.findById(questionId);
-            final Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
+        List<Comment> comments = commentService.findAllByQuestionId(questionId);
 
-            if(checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User not found");
-            }
-
-            if(checkQuestion.isPresent()){
-                List<Comment> comments = commentService.findAllByQuestionId(questionId);
-                return ResponseEntity.ok(comments);
-            }
-            else{
-                throw new Exception("Question not found");
-            }
-        }
-        catch(Exception e){
-            log.error("Error fetching comments for question with ID: {{}}: {}", questionId, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching comments: " + e.getMessage());
-        }
+        return ResponseEntity.ok(comments);
     }
 }

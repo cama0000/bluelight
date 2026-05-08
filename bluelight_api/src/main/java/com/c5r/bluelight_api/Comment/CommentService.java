@@ -14,12 +14,12 @@ public class CommentService {
     CommentRepository commentRepository;
 
     public Comment save(Comment comment){
-        log.info("Saved comment with ID: {{}}", comment.getId());
+        log.info("Saved comment with question ID: {{}}", comment.getQuestionId());
         return commentRepository.save(comment);
     }
 
     public void delete(Comment comment){
-        log.info("Deleted comment with ID: {{}}", comment.getId());
+        log.info("Deleted comment with question ID: {{}}", comment.getQuestionId());
         commentRepository.delete(comment);
     }
 

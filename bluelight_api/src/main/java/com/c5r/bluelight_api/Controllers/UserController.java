@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -32,106 +34,72 @@ public class UserController {
     @Autowired
     private UserQuestionService userQuestionService;
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody User userBody) {
+    public ResponseEntity<User> login(@RequestBody User userBody) {
+        String firebaseUid = (String) SecurityContextHolder.getContext()
+                                        .getAuthentication()
+                                        .getPrincipal();
 
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            firebaseService.verifyToken(idToken);
+        return userService.findByFirebaseUid(firebaseUid)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setFirebaseUid(userBody.getFirebaseUid());
+                    user.setUsername(userBody.getUsername());
+                    user.setEmail(userBody.getEmail());
+                    user.setBio("");
+                    user.setRole(Role.USER);
 
-            Optional<User> checkUser = userService.findByFirebaseUid(userBody.getFirebaseUid());
-            if(checkUser.isPresent()) {
-                return ResponseEntity.ok(checkUser.get());
-            }
-
-            User user = new User();
-            user.setFirebaseUid(userBody.getFirebaseUid());
-            user.setUsername(userBody.getUsername());
-            user.setEmail(userBody.getEmail());
-            user.setBio("");
-            user.setRole(Role.USER);
-
-            return ResponseEntity.ok(userService.save(user));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid Firebase token: " + e.getMessage());
-        }
-
+                    return ResponseEntity.ok(userService.save(user));
+                });
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/answerQuestion")
-    public ResponseEntity<?> answerQuestion(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody AnswerRequest requestBody){
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            firebaseService.verifyToken(idToken);
+    public ResponseEntity<?> answerQuestion(@RequestBody AnswerRequest requestBody){
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-            Optional<User> checkUser = userService.findByFirebaseUid(requestBody.getUserId());
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
-            if(checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User not found");
+        Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(user.getId(), requestBody.getQuestionId());
+        Question question = questionService.findById(requestBody.getQuestionId()).orElseThrow();
+
+        if(checkUserQuestion.isPresent()) {
+            UserQuestion userQuestion = checkUserQuestion.get();
+
+            if(userQuestion.getWasCorrect()){
+                return ResponseEntity.ok(user);
             }
 
-            User user = checkUser.get();
+            if(requestBody.getIsCorrect()){
+                int points = user.getPoints() + (question.getPoints() / 2);
 
-            Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(user.getId(), requestBody.getQuestionId());
-            Optional<Question> checkQuestion = questionService.findById(requestBody.getQuestionId());
-
-            if(checkQuestion.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Question not found");
+                userQuestion.setWasCorrect(true);
+                user.setPoints(points);
+                userQuestion.setPointsEarned(question.getPoints() / 2);
             }
 
-            Question question = checkQuestion.get();
-
-            if(checkUserQuestion.isPresent()) {
-                UserQuestion userQuestion = checkUserQuestion.get();
-
-                if(userQuestion.getWasCorrect()){
-                    return ResponseEntity.ok(user);
-                }
-
-                if(requestBody.getIsCorrect()){
-                    int points = user.getPoints() + (question.getPoints() / 2);
-
-                    userQuestion.setWasCorrect(true);
-                    user.setPoints(points);
-                    userQuestion.setPointsEarned(question.getPoints() / 2);
-                }
-
-                userQuestionService.save(userQuestion);
-            }
-            else{
-                UserQuestion userQuestion = new UserQuestion();
-                userQuestion.setQuestionId(requestBody.getQuestionId());
-                userQuestion.setUserId(user.getId());
-
-                if(requestBody.getIsCorrect()){
-                    int points = user.getPoints() + question.getPoints();
-
-                    userQuestion.setWasCorrect(true);
-                    user.setPoints(points);
-                    userQuestion.setPointsEarned(question.getPoints());
-                }
-
-                userQuestionService.save(userQuestion);
-            }
-
-            userService.save(user);
-
-            return ResponseEntity.ok(user);
+            userQuestionService.save(userQuestion);
         }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid Firebase token: " + e.getMessage());
+        else{
+            UserQuestion userQuestion = new UserQuestion();
+            userQuestion.setQuestionId(requestBody.getQuestionId());
+            userQuestion.setUserId(user.getId());
+
+            if(requestBody.getIsCorrect()){
+                int points = user.getPoints() + question.getPoints();
+
+                userQuestion.setWasCorrect(true);
+                user.setPoints(points);
+                userQuestion.setPointsEarned(question.getPoints());
+            }
+
+            userQuestionService.save(userQuestion);
         }
 
+        return ResponseEntity.ok(userService.save(user));
     }
 }

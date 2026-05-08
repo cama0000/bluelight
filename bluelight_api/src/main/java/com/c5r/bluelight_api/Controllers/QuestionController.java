@@ -16,11 +16,11 @@ import com.c5r.bluelight_api.UserFavorite.UserFavorite;
 import com.c5r.bluelight_api.UserFavorite.UserFavoriteService;
 import com.c5r.bluelight_api.UserQuestion.UserQuestion;
 import com.c5r.bluelight_api.UserQuestion.UserQuestionService;
-import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -46,352 +46,211 @@ public class QuestionController {
     @Autowired
     private CommentService commentService;
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/save")
-    public ResponseEntity<?> saveQuestion(@RequestHeader("Authorization") String authHeader,
-                                          @RequestBody Question question) {
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            firebaseService.verifyToken(idToken);
-            questionService.save(question);
+    public ResponseEntity<Question> saveQuestion(@RequestBody Question question) {
+        questionService.save(question);
 
-            return ResponseEntity.ok(question);
-        }
-        catch(Exception e){
-            log.error("Error saving question: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error saving question: " + e.getMessage());
-        }
+        return ResponseEntity.ok(question);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getAllQuestions")
-    public ResponseEntity<?> getAllQuestions(@RequestHeader("Authorization") String authHeader) {
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            firebaseService.verifyToken(idToken);
+    public ResponseEntity<List<QuestionResponse>> getAllQuestions() {
+        final List<Question> questions = questionService.findAll();
 
-            List<Question> questions = questionService.findAll();
-            List<QuestionResponse> questionResponses = new ArrayList<>();
+        final List<QuestionResponse> questionResponses = questionService.generateAllQuestionResponses(questions);
 
-            questions.forEach(question -> {
-                Optional<UserQuestion> userQuestion = userQuestionService.findByQuestionId(question.getId());
-
-                boolean isCorrect = false;
-
-                if(userQuestion.isPresent()) {
-                    isCorrect = userQuestion.get().getWasCorrect();
-                }
-
-                // required to send in isLiked and isDisliked. Just sending in false since we do not display
-                // whether the user liked or disliked a question on this page at the moment
-                questionResponses.add(new QuestionResponse(question, isCorrect, false, false, false));
-            });
-
-            return ResponseEntity.ok(questionResponses);
-        }
-        catch(Exception e){
-            log.error("Error fetching all questions: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching questions: " + e.getMessage());
-        }
+        return ResponseEntity.ok(questionResponses);
     }
 
+
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getCompletedQuestions")
-    public ResponseEntity<?> getCompletedQuestions(@RequestHeader("Authorization") String authHeader) {
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            String firebaseId = firebaseToken.getUid();
+    public ResponseEntity<List<QuestionResponse>> getCompletedQuestions() {
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                                        .getAuthentication()
+                                        .getPrincipal();
 
-            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
-            if(checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User not found");
-            }
+        List<UserQuestion> userQuestions = userQuestionService.findAllByUserId(user.getId());
 
-            User user = checkUser.get();
+        final List<QuestionResponse> completedResponses = questionService.generateCompletedQuestionResponses(userQuestions);
 
-            boolean isCorrect = true;
-
-            List<UserQuestion> userQuestions = userQuestionService.findAllByUserId(user.getId());
-            List<QuestionResponse> questionResponses = new ArrayList<>();
-
-            for (UserQuestion userQuestion : userQuestions) {
-                Optional<Question> question = questionService.findById(userQuestion.getQuestionId());
-
-                if (question.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Question not found");
-                }
-
-                questionResponses.add(new QuestionResponse(question.get(), userQuestion.getWasCorrect(), false, false, false));
-            }
-
-            return ResponseEntity.ok(questionResponses);
-        }
-        catch(Exception e){
-            log.error("Error fetching completed questions for user: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching completed questions: " + e.getMessage());
-        }
+        return ResponseEntity.ok(completedResponses);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getFavoritedQuestions")
-    public ResponseEntity<?> getFavoritedQuestions(@RequestHeader("Authorization") String authHeader) {
-        try{
-            final String idToken = authHeader.replace("Bearer ", "");
-            final FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            final String firebaseId = firebaseToken.getUid();
+    public ResponseEntity<List<QuestionResponse>> getFavoritedQuestions() {
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
-            if(checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User not found");
-            }
+        List<UserFavorite> userFavorites = userFavoriteService.findAllByUserId(user.getId());
 
-            final User user = checkUser.get();
+        final List<QuestionResponse> favoritedResponses = questionService.generateFavoritedQuestionResponses(userFavorites);
 
-            boolean isCorrect = true;
-
-            List<UserFavorite> userFavorites = userFavoriteService.findAllByUserId(user.getId());
-            List<QuestionResponse> questionResponses = new ArrayList<>();
-
-            for (UserFavorite userFavorite : userFavorites) {
-                Optional<Question> question = questionService.findById(userFavorite.getQuestionId());
-
-                if (question.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Question not found");
-                }
-
-                questionResponses.add(new QuestionResponse(question.get(), false, false, false, true));
-            }
-
-            return ResponseEntity.ok(questionResponses);
-        }
-        catch(Exception e){
-            log.error("Error fetching favorited questions for user: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching completed questions: " + e.getMessage());
-        }
+        return ResponseEntity.ok(favoritedResponses);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getQuestionById/{questionId}")
-    public ResponseEntity<?> getQuestionById(@RequestHeader("Authorization") String authHeader, @PathVariable Integer questionId) {
-        try{
-            String idToken = authHeader.replace("Bearer ", "");
-            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            String firebaseId = firebaseToken.getUid();
+    public ResponseEntity<QuestionResponse> getQuestionById(@PathVariable Integer questionId) {
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
-
-            if(checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User not found");
-            }
-
-            final User user = checkUser.get();
-
-            Optional<Question> checkQuestion = questionService.findById(questionId);
-            Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(user.getId(), questionId);
-            Optional<QuestionLike> checkQuestionLike = questionLikeService.findByUserIdAndQuestionId(user.getId(), questionId);
-            Optional<UserFavorite> checkUserFavorite = userFavoriteService.findByUserIdAndQuestionId(user.getId(), questionId);
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
 
-            boolean wasCorrect = false;
-            boolean wasLiked = false;
-            boolean wasDisliked = false;
-            boolean wasFavorited = false;
+        // TODO: this controller needs some cleanup, maybe also a service method for it
+        Question question = questionService.findById(questionId).orElseThrow();
+        Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(user.getId(), questionId);
+        Optional<QuestionLike> checkQuestionLike = questionLikeService.findByUserIdAndQuestionId(user.getId(), questionId);
+        Optional<UserFavorite> checkUserFavorite = userFavoriteService.findByUserIdAndQuestionId(user.getId(), questionId);
 
-            if(checkQuestion.isPresent()){
-                Question question = checkQuestion.get();
+        boolean wasCorrect = false;
+        boolean wasLiked = false;
+        boolean wasDisliked = false;
+        boolean wasFavorited = false;
 
-                if(checkUserQuestion.isPresent()){
-                    UserQuestion userQuestion = checkUserQuestion.get();
-                    wasCorrect = userQuestion.getWasCorrect();
-                }
-
-                if(checkQuestionLike.isPresent()){
-                    QuestionLike questionLike = checkQuestionLike.get();
-                    wasLiked = questionLike.getWasLiked();
-                    wasDisliked = questionLike.getWasDisliked();
-                }
-
-                if(checkUserFavorite.isPresent()){
-                    UserFavorite userFavorite = checkUserFavorite.get();
-                    wasFavorited = true;
-                }
-
-                QuestionResponse questionResponse = new QuestionResponse(question, wasCorrect, wasLiked, wasDisliked, wasFavorited);
-
-                return ResponseEntity.ok(questionResponse);
-            }
-            else{
-                throw new Exception("Question not found");
-            }
+        if(checkUserQuestion.isPresent()){
+            UserQuestion userQuestion = checkUserQuestion.get();
+            wasCorrect = userQuestion.getWasCorrect();
         }
-        catch(Exception e){
-            log.error("Error fetching question with ID {{}}: {}", questionId, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching questions: " + e.getMessage());
+
+        if(checkQuestionLike.isPresent()){
+            QuestionLike questionLike = checkQuestionLike.get();
+            wasLiked = questionLike.getWasLiked();
+            wasDisliked = questionLike.getWasDisliked();
         }
+
+        if(checkUserFavorite.isPresent()){
+            UserFavorite userFavorite = checkUserFavorite.get();
+            wasFavorited = true;
+        }
+
+        QuestionResponse questionResponse = new QuestionResponse(question, wasCorrect, wasLiked, wasDisliked, wasFavorited);
+
+        return ResponseEntity.ok(questionResponse);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/submitLikeDislike")
-    public ResponseEntity<?> submitLikeDislike(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody VoteRequest voteRequestBody) {
+    public ResponseEntity<QuestionResponse> submitLikeDislike(@RequestBody VoteRequest voteRequestBody) {
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        try {
-            String idToken = authHeader.replace("Bearer ", "");
-            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            String firebaseId = firebaseToken.getUid();
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
-            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
-            if (checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            }
+        // TODO: this controller needs some cleanup, maybe also a service method for it
+        int userId = user.getId();
+        int questionId = voteRequestBody.getQuestionId();
+        boolean isLiked = voteRequestBody.getIsLiked();
 
-            User user = checkUser.get();
-            int userId = user.getId();
-            int questionId = voteRequestBody.getQuestionId();
+        Question question = questionService.findById(questionId).orElseThrow();
 
-            Optional<Question> checkQuestion = questionService.findById(questionId);
-            if (checkQuestion.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
-            }
+        Optional<QuestionLike> checkQuestionLike =
+                questionLikeService.findByUserIdAndQuestionId(userId, questionId);
 
-            Question question = checkQuestion.get();
-            boolean isLiked = voteRequestBody.getIsLiked();
+        boolean isCorrect = false;
+        Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(userId, questionId);
 
-            Optional<QuestionLike> checkQuestionLike =
-                    questionLikeService.findByUserIdAndQuestionId(userId, questionId);
+        boolean finalLiked = false;
+        boolean finalDisliked = false;
 
-            boolean isCorrect = false;
-            Optional<UserQuestion> checkUserQuestion = userQuestionService.findByUserIdAndQuestionId(userId, questionId);
+        if(checkUserQuestion.isPresent()){
+            UserQuestion userQuestion = checkUserQuestion.get();
+            isCorrect = userQuestion.getWasCorrect();
+        }
 
-            boolean finalLiked = false;
-            boolean finalDisliked = false;
+        if (checkQuestionLike.isPresent()) {
+            QuestionLike existingLike = checkQuestionLike.get();
+            boolean wasLiked = existingLike.getWasLiked();
+            boolean wasDisliked = existingLike.getWasDisliked();
 
-            if(checkUserQuestion.isPresent()){
-                UserQuestion userQuestion = checkUserQuestion.get();
-                isCorrect = userQuestion.getWasCorrect();
-            }
-
-            if (checkQuestionLike.isPresent()) {
-                QuestionLike existingLike = checkQuestionLike.get();
-                boolean wasLiked = existingLike.getWasLiked();
-                boolean wasDisliked = existingLike.getWasDisliked();
-
-                if (isLiked) {
-                    if (wasLiked) {
-                        // Undo like
-                        existingLike.setWasLiked(false);
-                        question.setLikes(question.getLikes() - 1);
-                    } else {
-                        // Like (and remove dislike if it existed)
-                        existingLike.setWasLiked(true);
-                        if (wasDisliked) {
-                            existingLike.setWasDisliked(false);
-                            question.setDislikes(question.getDislikes() - 1);
-                        }
-                        question.setLikes(question.getLikes() + 1);
-                    }
+            if (isLiked) {
+                if (wasLiked) {
+                    // Undo like
+                    existingLike.setWasLiked(false);
+                    question.setLikes(question.getLikes() - 1);
                 } else {
+                    // Like (and remove dislike if it existed)
+                    existingLike.setWasLiked(true);
                     if (wasDisliked) {
-                        // Undo dislike
                         existingLike.setWasDisliked(false);
                         question.setDislikes(question.getDislikes() - 1);
-                    } else {
-                        // Dislike (and remove like if it existed)
-                        existingLike.setWasDisliked(true);
-                        if (wasLiked) {
-                            existingLike.setWasLiked(false);
-                            question.setLikes(question.getLikes() - 1);
-                        }
-                        question.setDislikes(question.getDislikes() + 1);
                     }
+                    question.setLikes(question.getLikes() + 1);
                 }
-
-                finalLiked = existingLike.getWasLiked();
-                finalDisliked = existingLike.getWasDisliked();
-
-                questionLikeService.save(existingLike);
             } else {
-                // First time like/dislike
-                QuestionLike newLike = new QuestionLike(userId, questionId, isLiked, !isLiked);
-                questionLikeService.save(newLike);
-                if (isLiked) question.setLikes(question.getLikes() + 1);
-                else question.setDislikes(question.getDislikes() + 1);
-
-                finalLiked = newLike.getWasLiked();
-                finalDisliked = newLike.getWasDisliked();
+                if (wasDisliked) {
+                    // Undo dislike
+                    existingLike.setWasDisliked(false);
+                    question.setDislikes(question.getDislikes() - 1);
+                } else {
+                    // Dislike (and remove like if it existed)
+                    existingLike.setWasDisliked(true);
+                    if (wasLiked) {
+                        existingLike.setWasLiked(false);
+                        question.setLikes(question.getLikes() - 1);
+                    }
+                    question.setDislikes(question.getDislikes() + 1);
+                }
             }
 
-            questionService.save(question);
+            finalLiked = existingLike.getWasLiked();
+            finalDisliked = existingLike.getWasDisliked();
 
+            questionLikeService.save(existingLike);
+        } else {
+            // First time like/dislike
+            QuestionLike newLike = new QuestionLike(userId, questionId, isLiked, !isLiked);
+            questionLikeService.save(newLike);
+            if (isLiked) question.setLikes(question.getLikes() + 1);
+            else question.setDislikes(question.getDislikes() + 1);
 
-
-            return ResponseEntity.ok(new QuestionResponse(question, isCorrect, finalLiked, finalDisliked, false));
-
-        } catch (Exception e) {
-            log.error("Error submitting like/dislike for question with ID: {{}}: {}", voteRequestBody.getQuestionId(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error saving like/dislike: " + e.getMessage());
+            finalLiked = newLike.getWasLiked();
+            finalDisliked = newLike.getWasDisliked();
         }
+
+        questionService.save(question);
+
+        return ResponseEntity.ok(new QuestionResponse(question, isCorrect, finalLiked, finalDisliked, false));
     }
 
-
-
-
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/submitFavorite")
-    public ResponseEntity<?> submitFavorite(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody FavoriteRequest favoriteRequestBody) {
+    public ResponseEntity<?> submitFavorite(@RequestBody FavoriteRequest favoriteRequestBody) {
+        String firebaseId = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        try {
-            String idToken = authHeader.replace("Bearer ", "");
-            FirebaseToken firebaseToken = firebaseService.verifyToken(idToken);
-            String firebaseId = firebaseToken.getUid();
+        final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
+        final int userId = user.getId();
+        final int questionId = favoriteRequestBody.getQuestionId();
 
-            Optional<User> checkUser = userService.findByFirebaseUid(firebaseId);
-            if (checkUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            }
+        final Question question = questionService.findById(questionId).orElseThrow();
 
-            final User user = checkUser.get();
-            final int userId = user.getId();
-            final int questionId = favoriteRequestBody.getQuestionId();
+        final Optional<UserFavorite> userFavoriteOpt =
+                userFavoriteService.findByUserIdAndQuestionId(userId, questionId);
 
-            Optional<Question> checkQuestion = questionService.findById(questionId);
-            if(checkQuestion.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
-            }
+        boolean favorited = false;
 
-            final Question question = checkQuestion.get();
-
-            Optional<UserFavorite> userFavoriteOpt =
-                    userFavoriteService.findByUserIdAndQuestionId(userId, questionId);
-
-            boolean favorited = false;
-
-            if(userFavoriteOpt.isEmpty()) {
-                userFavoriteService.save(new UserFavorite(userId, questionId));
-                favorited = true;
-            }
-            else{
-                UserFavorite userFavorite = userFavoriteOpt.get();
-                userFavoriteService.delete(userFavorite);
-            }
-
-            return ResponseEntity.ok(new QuestionResponse(question, false, false, false, favorited));
-
-        } catch (Exception e) {
-            log.error("Error submitting favorite for question with ID: {{}}: {}", favoriteRequestBody.getQuestionId(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error favoriting question: " + e.getMessage());
+        if(userFavoriteOpt.isEmpty()) {
+            userFavoriteService.save(new UserFavorite(userId, questionId));
+            favorited = true;
         }
-    }
+        else{
+            UserFavorite userFavorite = userFavoriteOpt.get();
+            userFavoriteService.delete(userFavorite);
+        }
 
+        return ResponseEntity.ok(new QuestionResponse(question, false, false, false, favorited));
+    }
 }

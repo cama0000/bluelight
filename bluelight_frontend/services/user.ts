@@ -2,21 +2,8 @@ import { AnswerRequest, Question } from "@/types/question";
 import { User } from "@/types/user";
 import axios from "axios";
 
-export const login = async(userBody : User, token : string) => {
-    // axios.post(`${process.env.NEXT_PUBLIC_HOST_NAME}user/add`, userBody)
-    // .then((res) =>{
-    //     // toast.success("Registration successful!");
-
-    //     const token = res.data.token;
-    //     // localStorage.setItem('access_token', token)
-    //     // setStudentFromToken();
-    // })
-    // .catch((res) =>{
-    //     // toast.error("Registration unsuccessful.");
-    //     console.log(res)
-    // })
-
-    await axios.post(
+export const login = async(userBody : User, token : string) : Promise<User> => {
+    const response = await axios.post(
         `${process.env.NEXT_PUBLIC_HOST_NAME}user/login`, userBody,
         {
           headers: {
@@ -24,7 +11,21 @@ export const login = async(userBody : User, token : string) => {
           },
         }
       );
-      
+
+    return response.data;
+}
+
+export const getMe = async(token : string) : Promise<User> => {
+    const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_HOST_NAME}user/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+    return response.data;
 }
 
 export const answerQuestion = async(requestBody : AnswerRequest, token : string) => {

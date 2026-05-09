@@ -10,14 +10,13 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button"
-import { Star, Type } from "lucide-react";
+import { Star } from "lucide-react";
 
 import {
   Card,
   CardContent
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { MoonLoader } from "react-spinners";
 import { Badge } from "@/components/ui/badge";
 import { answerQuestion } from "@/services/user";
 import { CheckCircle, ThumbsDown, ThumbsUp } from "lucide-react";
@@ -25,9 +24,7 @@ import { Separator } from "@radix-ui/react-separator";
 import CodeSnippet from "@/app/components/CodeSnippet";
 import Loader from "@/app/components/Loader";
 import { shuffleChoices } from "@/app/utils/misc";
-
-// TODO: doesnt render answrr chices when answerindex is 0 in the db GET IT TOGEHER QUESTION
-
+import CommentSection from "@/app/components/CommentSection";
 
 const Question = () => {
     const {user} = useAuth();
@@ -63,7 +60,6 @@ const Question = () => {
               
               setShuffledChoices(array);
               setQuestion({...data, answerIndex: newCorrectIndex});
-              
             }
         }
         catch(error){
@@ -441,8 +437,7 @@ const Question = () => {
                 </Card>
                 )}
 
-
-
+                <CommentSection questionId={params.id}/>
 
         </motion.div>
       </div>

@@ -5,8 +5,6 @@ import ProtectedRoutes from "../components/ProtectedRoutes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Question } from "@/types/question";
-import { getAllQuestions } from "@/services/question";
-import { MoonLoader } from "react-spinners";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { User, Mail, Trophy, Edit } from "lucide-react";
@@ -17,19 +15,15 @@ import Loader from "../components/Loader";
 
 
 // TODO: put the rank really big #86 on the right side of the user part
-// TODO: put a biggger rectnagle under the 2 boxes we have now for smth maybe favorited questions idk
-
 
 const ProfilePage = () => {
     const {user} = useAuth();
-    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [favoritedQuestions, setFavoritedQuestions] = useState<Question[]>([]);
 
-
-    useEffect(() => {
-        if(user?.token){
+  useEffect(() => {
+      if (user?.token) {
             fetchCompletedQuestions();
             fetchFavoritedQuestions();
         }
@@ -41,7 +35,7 @@ const ProfilePage = () => {
             console.error("User not authenticated.");
             return;
         }
-        
+
         try{
             const data: Question[] = await getCompletedQuestions(user.token);
 
@@ -98,7 +92,7 @@ const ProfilePage = () => {
               <div className="space-y-3 w-full">
                 <h2 className="text-3xl font-bold text-blue-300 flex items-center gap-2">
                   <User className="w-6 h-6 text-blue-400" />
-                  {user?.username || "Anonymous User"}
+                  {user?.username || "User not found"}
                 </h2>
   
                 <p className="flex items-center text-zinc-400 gap-2">
@@ -106,7 +100,7 @@ const ProfilePage = () => {
                 </p>
   
                 <p className="text-zinc-400 italic">
-                  {user?.bio || "This user hasn’t written a bio yet."}
+                  {user?.bio || ""}
                 </p>
   
                 <div className="flex items-center gap-3 mt-2">

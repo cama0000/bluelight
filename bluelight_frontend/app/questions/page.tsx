@@ -1,25 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Category, CategoryLabels, Difficulty, Question, QuestionRequest, QuestionType } from "@/types/question";
 import { getAllQuestions, saveQuestion } from "@/services/question";
-import { MoonLoader } from "react-spinners";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import QuestionCard from "../components/QuestionCard";
 import ProtectedRoutes from "../components/ProtectedRoutes";
 import Loader from "../components/Loader";
 
 const QuestionsPage = () => {
     const {user} = useAuth();
-    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -28,42 +22,11 @@ const QuestionsPage = () => {
 
 
     useEffect(() => {
-        if(user?.token){
+      if (user?.token) {
             fetchQuestions();
         }
 
     }, [user?.firebaseUid])
-
-    // async function handleMakeQuestion(){
-    //     if(!user?.token){
-    //         console.error("User not authenticated.");
-    //         return;
-    //     }
-        
-    //     try{
-    //         const questionBody: QuestionRequest = {
-    //                 title: "Too Lazy to Load",
-    //                 prompt: "What is the main benefit of lazy loading in web applications?",
-    //                 category: Category.WEB_DEVELOPMENT,
-    //                 difficulty: Difficulty.MEDIUM,
-    //                 type: QuestionType.MULTIPLE_CHOICE,
-    //                 answerChoices: [
-    //                   "Improving SEO ranking",
-    //                   "Loading content only when needed to reduce initial load time",
-    //                   "Increasing server request rate",
-    //                   "Preloading all images for smoother scrolling"
-    //                 ],
-    //                 answerIndex: 1
-                    
-                    
-    //         }
-
-    //         await saveQuestion(questionBody, user?.token);
-    //     }
-    //     catch(error){
-    //         console.log("Error making questions: " + error);
-    //     }
-    // }
 
     async function fetchQuestions(){
         if(!user?.token){

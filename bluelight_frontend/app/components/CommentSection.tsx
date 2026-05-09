@@ -1,0 +1,123 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/AuthContext";
+import { saveComment } from "@/services/comment";
+import { getCommentsByQuestionId } from "@/services/comment";
+import { Comment, CommentRequest } from "@/types/comment";
+import { Loader } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface CommentSectionProps {
+  questionId: string;
+}
+
+  export default function CommentSection({ questionId }: CommentSectionProps) {
+    const { user } = useAuth();
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [newComment, setNewComment] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+  
+    useEffect(() => {
+      if (user?.token) {
+        fetchComments(questionId);
+      }
+    }, [user?.firebaseUid]);
+
+    async function fetchComments(questionId: string){
+        if(!user?.token){
+            console.error("User not authenticated.");
+            return;
+        }
+
+        try{
+            setLoading(true);
+            const data: Comment[] = await getCommentsByQuestionId(Number(questionId), user.token);
+            setComments(data);
+        }
+        catch(error){
+            console.log("Error fetching comments: " + error);
+        }
+        finally{
+            setLoading(false);
+        }
+    }
+
+    async function handleSubmit(){
+      if (!newComment.trim() || !user?.token) return;
+
+      try{
+        setSubmitting(true);
+
+        const commentRequest : CommentRequest = {
+          questionId: Number(questionId),
+          content: newComment
+        }
+
+        const data : Comment = await saveComment(commentRequest, user.token);
+
+        setComments((prev) => [data, ...prev]);
+        setNewComment("");
+      }
+      catch(error){
+        console.log("Error saving comment: " + error);
+      }
+      finally{
+        setSubmitting(false);
+      }
+    }
+
+
+    return(
+      <div className="mt-10">
+      <h2 className="text-xl font-semibold text-white mb-4">Comments</h2>
+
+      <div className="flex gap-2 mb-6">
+        <Input
+          placeholder="Write a comment..."
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
+        />
+
+        <Button
+          onClick={handleSubmit}
+          disabled={submitting || !newComment.trim()}
+          className="bg-blue-600 hover:bg-blue-500"
+        >
+          Post
+        </Button>
+      </div>
+
+      {loading && (
+        <Loader/>
+      )}
+
+      {!loading && comments.length === 0 && (
+        <div className="text-zinc-500 text-sm">
+          No comments on this question yet.
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {comments.map((comment) => (
+          <div
+            key={comment.id}
+            className="bg-zinc-900 border border-zinc-800 rounded-xl p-4"
+          >
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium text-blue-400">
+                {comment.username}
+              </span>
+              <span className="text-xs text-zinc-500">
+                {new Date(comment.createdAt).toLocaleString()}
+              </span>
+            </div>
+
+            <p className="text-zinc-300 text-sm">{comment.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+    );
+};

@@ -11,7 +11,6 @@ import com.c5r.bluelight_api.UserQuestion.UserQuestion;
 import com.c5r.bluelight_api.UserQuestion.UserQuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +30,7 @@ public class UserController {
 
     @Autowired
     private QuestionService questionService;
+
     @Autowired
     private UserQuestionService userQuestionService;
 
@@ -53,6 +53,18 @@ public class UserController {
 
                     return ResponseEntity.ok(userService.save(user));
                 });
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/me")
+    public ResponseEntity<User> getMe() {
+        String firebaseUid = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userService.findByFirebaseUid(firebaseUid)
+                .map(ResponseEntity::ok)
+                .orElseThrow();
     }
 
     @PreAuthorize("isAuthenticated()")

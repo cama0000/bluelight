@@ -7,7 +7,6 @@ interface QuestionProps{
     question: Question
 };
 
-
 const CodeSnippet = ({question}: QuestionProps) => {
     return(
         <Card className="bg-zinc-900/80 border border-zinc-800 shadow-lg rounded-2xl mb-8">

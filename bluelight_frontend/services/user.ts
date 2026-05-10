@@ -1,6 +1,7 @@
 import { AnswerRequest, Question } from "@/types/question";
 import { User } from "@/types/user";
 import axios from "axios";
+import { UpdateProfileRequest } from "@/types/user";
 
 export const login = async(userBody : User, token : string) : Promise<User> => {
     const response = await axios.post(
@@ -18,6 +19,19 @@ export const login = async(userBody : User, token : string) : Promise<User> => {
 export const getMe = async(token : string) : Promise<User> => {
     const response = await axios.get(
         `${process.env.NEXT_PUBLIC_HOST_NAME}user/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+    return response.data;
+}
+
+export const updateProfile = async(userBody : UpdateProfileRequest, token : string) : Promise<User> => {
+    const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOST_NAME}user/updateProfile`, userBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,

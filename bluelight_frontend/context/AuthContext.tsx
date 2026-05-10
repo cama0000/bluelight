@@ -16,6 +16,7 @@ interface AuthContextType {
   loading: boolean;
   authLogin: () => Promise<void>;
   authLogout: () => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   authLogin: async () => {},
   authLogout: async () => {},
+  setUser: () => {}
 });
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -41,6 +43,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: firebaseUser.email,   
         username: firebaseUser.displayName,
         bio: "",
+        profilePicUrl: "/images/default-user.png",
         token: token,
         role: Role.User,
         points: 0,
@@ -48,7 +51,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const user: User = await login(userBody, token);
 
-      userBody.token = token;
+      user.token = token;
       setUser(user);
     } catch (error) {
       console.error("Google sign-in error:", error);
@@ -57,10 +60,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   async function authLogout() {
-    setLoading(false);
+    setLoading(true);
     await signOut(auth);
     setUser(null);
-    setLoading(true);
+    setLoading(false);
   }
 
   // this runs on refresh and new pages checking the auth state
@@ -96,6 +99,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         loading,
         authLogin,
         authLogout,
+        setUser
       }}
     >
       {children}

@@ -4,6 +4,7 @@ import com.c5r.bluelight_api.Firebase.FirebaseService;
 import com.c5r.bluelight_api.Question.Question;
 import com.c5r.bluelight_api.Question.QuestionService;
 import com.c5r.bluelight_api.User.Role;
+import com.c5r.bluelight_api.User.UpdateProfileRequest;
 import com.c5r.bluelight_api.User.User;
 import com.c5r.bluelight_api.User.UserService;
 import com.c5r.bluelight_api.UserQuestion.AnswerRequest;
@@ -49,6 +50,7 @@ public class UserController {
                     user.setUsername(userBody.getUsername());
                     user.setEmail(userBody.getEmail());
                     user.setBio("");
+                    user.setProfilePicUrl(userBody.getProfilePicUrl());
                     user.setRole(Role.USER);
 
                     return ResponseEntity.ok(userService.save(user));
@@ -65,6 +67,23 @@ public class UserController {
         return userService.findByFirebaseUid(firebaseUid)
                 .map(ResponseEntity::ok)
                 .orElseThrow();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/updateProfile")
+    public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
+        String firebaseUid = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userService.findByFirebaseUid(firebaseUid)
+                .map(user -> {
+                    user.setProfilePicUrl(updateProfileRequest.getProfilePicUrl());
+                    user.setUsername(updateProfileRequest.getUsername());
+                    user.setBio(updateProfileRequest.getBio());
+
+                    return ResponseEntity.ok(userService.save(user));
+                }).orElseThrow();
     }
 
     @PreAuthorize("isAuthenticated()")

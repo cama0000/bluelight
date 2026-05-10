@@ -2,7 +2,6 @@ package com.c5r.bluelight_api.User;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -56,12 +55,12 @@ public class User{
     )
     private String bio;
 
-//    @Setter
-//    @Column(
-//            name = "PROFILE_IMAGE_URL",
-//            unique = true
-//    )
-//    private String profileImageUrl;
+    @Setter
+    @Column(
+            name = "PROFILE_PIC_URL",
+            unique = true
+    )
+    private String profilePicUrl;
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -2,9 +2,6 @@ package com.c5r.bluelight_api.Controllers;
 
 import com.c5r.bluelight_api.Comment.Comment;
 import com.c5r.bluelight_api.Comment.CommentService;
-import com.c5r.bluelight_api.Firebase.FirebaseService;
-import com.c5r.bluelight_api.Question.Question;
-import com.c5r.bluelight_api.Question.QuestionService;
 import com.c5r.bluelight_api.User.User;
 import com.c5r.bluelight_api.User.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +19,7 @@ import java.util.List;
 public class CommentController {
 
     @Autowired
-    private FirebaseService firebaseService;
-
-    @Autowired
     private CommentService commentService;
-
-    @Autowired
-    private QuestionService questionService;
 
     @Autowired
     private UserService userService;
@@ -50,7 +41,7 @@ public class CommentController {
                 commentRequest.getContent()
         );
 
-        Comment savedComment = commentService.save(comment);
+        final Comment savedComment = commentService.save(comment);
 
         return ResponseEntity.ok(savedComment);
     }
@@ -58,10 +49,10 @@ public class CommentController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/getCommentsByQuestionId/{questionId}")
     public ResponseEntity<List<Comment>> getCommentsByQuestionId(@PathVariable Integer questionId) {
-        final Question question = questionService.findById(questionId).orElseThrow();
+        final List<Comment> comments = commentService.findAllByQuestionId(questionId);
 
-        List<Comment> comments = commentService.findAllByQuestionId(questionId);
+        final List<Comment> updatedComments = commentService.getUpdatedComments(comments);
 
-        return ResponseEntity.ok(comments);
+        return ResponseEntity.ok(updatedComments);
     }
 }

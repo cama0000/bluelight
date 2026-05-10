@@ -5,13 +5,17 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import ProtectedRoutes from "../components/ProtectedRoutes";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useState } from "react";
+
 
 const MainNavBar = () => {
-    const {user, authLogout} = useAuth();
-    const router = useRouter();
+  const {user, authLogout} = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
+  const [openModal, setOpenModal] = useState(false);
+  
 
   const navItems = [
     { name: "Profile", href: "/profile" },
@@ -72,17 +76,29 @@ const MainNavBar = () => {
 
           <div className="flex items-center justify-end w-[160px]">
             {user && (
-                <motion.button
-                onClick={handleLogout}
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 text-sm font-semibold rounded-xl
-                            bg-blue-300 text-white shadow-lg 
-                            hover:bg-blue-400 transition-all duration-200 
-                            hover:shadow-blue-500/30 hover:cursor-pointer"
-                >
-                Logout
-                </motion.button>
+              <div className="relative">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500 hover:cursor-pointer" 
+                  onClick={() => {
+                    setOpenModal(!openModal)
+                  }}>          
+                  <Image
+                    src={user.profilePicUrl}
+                    alt="Profile Picture"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+
+                {openModal && (
+                  <div className="absolute top-11 right-0 w-48 bg-white shadow-lg rounded-lg overflow-hidden">
+                    <ul>
+                      <li><a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a></li>
+                      <li><a href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a></li>
+                      <li><a onClick={handleLogout} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a></li>
+                    </ul>
+                  </div>
+                )}
+              </div>  
             )}
         </div>
 

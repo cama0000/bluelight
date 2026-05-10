@@ -27,19 +27,36 @@ const EditProfile = ({
   const [profilePicUrlInput, setProfilePicUrlInput] = useState(profilePicUrl);
   const [usernameInput, setUsernameInput] = useState(username);
   const [bioInput, setBioInput] = useState(bio);
-  const {setUser} = useAuth();
+  const { setUser } = useAuth();
+  const [usernameError, setUsernameError] = useState("");
+  const [bioError, setBioError] = useState("");
   
   async function handleSave() {
     try {
       if (!user) return;
+
+      if (usernameInput.length > 50) {
+        setUsernameError("Username must be less than 50 characters");
+        return;
+      }
+
+      setUsernameError("");
+
+      if (bioInput.length > 200) {
+        setBioError("Bio must be less than 200 characters");
+        return;
+      }
+
+      setBioError("");
       
       const updateProfileRequest : UpdateProfileRequest = {
         username: usernameInput,
         bio: bioInput,
         profilePicUrl: profilePicUrlInput,
       };
-      
+
       const updatedUser: User = await updateProfile(updateProfileRequest, user.token);
+      updatedUser.token = user.token;
 
       setUser(updatedUser);
       setEditing(false);
@@ -69,6 +86,7 @@ const EditProfile = ({
       <h2 className={usernameInput.length <= 50 ? 'text-white text-xs mt-1' : 'text-red-600 text-xs mt-1'}>
         {usernameInput.length}/50
       </h2>
+      {usernameError && <p className="text-red-600 text-xs mt-1">{usernameError}</p>}
       
 
       <h2 className="text-white text-xs mt-5 font-bold">Bio</h2>
@@ -81,6 +99,8 @@ const EditProfile = ({
       <h2 className={bioInput.length <= 200 ? 'text-white text-xs mt-1' : 'text-red-600 text-xs mt-1'}>
         {bioInput.length}/200
       </h2>
+      {bioError && <p className="text-red-600 text-xs mt-1">{bioError}</p>}
+      
 
       <div className="flex-row flex gap-2">
         <Button

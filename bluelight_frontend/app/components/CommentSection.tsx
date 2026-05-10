@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { saveComment } from "@/services/comment";
 import { getCommentsByQuestionId } from "@/services/comment";
@@ -15,6 +16,7 @@ interface CommentSectionProps {
     const { user } = useAuth();
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
+    const [commentError, setCommentError] = useState("");    
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
   
@@ -29,7 +31,7 @@ interface CommentSectionProps {
             console.error("User not authenticated.");
             return;
         }
-
+        
         try{
             setLoading(true);
             const data: Comment[] = await getCommentsByQuestionId(Number(questionId), user.token);
@@ -45,6 +47,13 @@ interface CommentSectionProps {
 
     async function handleSubmit(){
       if (!newComment.trim() || !user?.token) return;
+
+      if (newComment.length > 500) {
+        setCommentError("Comment must be 500 characters or less");
+        return;
+      }
+
+      setCommentError("");
 
       try{
         setSubmitting(true);
@@ -72,22 +81,30 @@ interface CommentSectionProps {
       <div className="mt-10">
       <h2 className="text-xl font-semibold text-white mb-4">Comments</h2>
 
-      <div className="flex gap-2 mb-6">
-        <Input
-          placeholder="Write a comment..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
-        />
+      <div className="flex flex-col gap-2 mb-6">
+        <div className="flex flex-row gap-2">
+          <Textarea
+            placeholder="Write a comment..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500 resize-none"
+            />
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting || !newComment.trim()}
+              className="bg-blue-600 hover:bg-blue-500 hover:cursor-pointer"
+            >
+              Post
+            </Button>
+        </div>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting || !newComment.trim()}
-          className="bg-blue-600 hover:bg-blue-500"
-        >
-          Post
-        </Button>
-      </div>
+        <div className="flex justify-between items-center">
+          <h2 className={newComment.length <= 500 ? 'text-white text-xs mt-1' : 'text-red-600 text-xs mt-1'}>
+            {newComment.length}/500
+          </h2>
+            {commentError && <p className="text-red-600 text-xs mt-1">{commentError}</p>}
+          </div>
+        </div>
 
       {loading && (
         <Loader/>

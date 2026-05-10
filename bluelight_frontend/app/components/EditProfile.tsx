@@ -36,14 +36,14 @@ const EditProfile = ({
       if (!user) return;
 
       if (usernameInput.length > 50) {
-        setUsernameError("Username must be less than 50 characters");
+        setUsernameError("Username must be 50 characters or less");
         return;
       }
 
       setUsernameError("");
 
       if (bioInput.length > 200) {
-        setBioError("Bio must be less than 200 characters");
+        setBioError("Bio must be 200 characters or less");
         return;
       }
 

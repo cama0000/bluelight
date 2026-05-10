@@ -7,7 +7,8 @@ import { Save } from "lucide-react";
 import Image from "next/image";
 import { updateProfile } from "@/services/user";
 import { User, UpdateProfileRequest } from "@/types/user";
-import { useAuth} from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 interface EditProfileProps{
   profilePicUrl: string;
@@ -60,6 +61,8 @@ const EditProfile = ({
 
       setUser(updatedUser);
       setEditing(false);
+
+      toast.success("Profile updated successfully!");
     } catch (error) {
       console.log("Error saving profile: " + error);
     }

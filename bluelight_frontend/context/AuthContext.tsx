@@ -10,6 +10,7 @@ import {
   User as FirebaseUser,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "sonner"
 
 interface AuthContextType {
   user: User | null;
@@ -53,8 +54,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       user.token = token;
       setUser(user);
+
+      toast.success("Logged in as '" + user.username + "'")
     } catch (error) {
       console.error("Google sign-in error:", error);
+      toast.error("Google sign-in error:" + error);
       throw error;
     }
   }
@@ -64,6 +68,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await signOut(auth);
     setUser(null);
     setLoading(false);
+    toast.success("Logged out successfully!")
   }
 
   // this runs on refresh and new pages checking the auth state

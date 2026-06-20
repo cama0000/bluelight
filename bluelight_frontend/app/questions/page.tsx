@@ -1,48 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
-import { Category, CategoryLabels } from "@/types/question";
 import { getAllQuestions } from "@/services/question";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import QuestionCard from "../components/QuestionCard";
 import ProtectedRoutes from "../components/ProtectedRoutes";
 import Loader from "../components/Loader";
 import { useQuery } from "@tanstack/react-query";
+import QuestionsContainer from "../components/QuestionsContainer";
+import QuestionCategories from "../components/QuestionCategories";
+import QuestionSearch from "../components/QuestionSearch";
 
 const QuestionsPage = () => {
-    const {user} = useAuth();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [hasAnimated, setHasAnimated] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const {user} = useAuth();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-    const {data: questions, isLoading } = useQuery({
-      queryKey: ["questions", user?.firebaseUid],
-      queryFn: () => getAllQuestions(user!.token),
-      staleTime: Infinity
-    });
+  const {data: questions, isLoading } = useQuery({
+    queryKey: ["questions", user?.firebaseUid],
+    queryFn: () => getAllQuestions(user!.token),
+    staleTime: Infinity
+  });
 
-    const filteredQuestions = questions?.filter((q) => {
-      const matchesSearch =
-        q.title.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredQuestions = questions?.filter((q) => {
+    const matchesSearch =
+      q.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesCategory = selectedCategory ? q.category === selectedCategory.toUpperCase() : true;
+    const matchesCategory = selectedCategory ? q.category === selectedCategory.toUpperCase() : true;
 
-      return matchesSearch && matchesCategory;
-    });
-    
+    return matchesSearch && matchesCategory;
+  });
+  
 
-    if(isLoading){
-      return(
-        <Loader/>
-      )
+  if(isLoading){
+    return(
+      <Loader/>
+    )
   }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
+      
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -50,71 +50,23 @@ const QuestionsPage = () => {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
+          
           <h1 className="text-5xl font-bold text-blue-300">Questions</h1>
+          
           <p className="mt-2 text-zinc-400 text-sm">
             Start solving.
           </p>
+          
         </motion.div>
     
-    
-      <div className="relative flex-shrink-0 w-full sm:w-1/3 md:w-1/2">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-5 h-5" />
-        <Input
-          type="text"
-          placeholder="Search questions..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 bg-zinc-900/70 border border-zinc-800 text-zinc-200 
-                    placeholder-zinc-500 rounded-lg focus:border-blue-500 focus:ring-0"
-        />
-      </div>
-    
-    <div className="flex items-center gap-2 overflow-x-auto scrollbar-none w-full sm:w-auto py-3 px-1">
-        {Object.values(Category).map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)
-            }
-            className={`flex-shrink-0 text-[11px] px-2.5 py-1 rounded-md border transition-all duration-200
-              ${
-                selectedCategory === cat
-                  ? "bg-blue-600/20 text-blue-400 border-blue-700/40"
-                  : "bg-zinc-900/70 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700"
-              }`}
-          >
-            {CategoryLabels[cat]}
-          </button>
-        ))}
-      </div>
-    
-      <Card className="bg-zinc-900/80 border border-zinc-800 shadow-2xl rounded-2xl p-3">
-          {filteredQuestions?.length === 0 ? (
-            <div className="text-center text-zinc-500 py-12 text-sm">
-              No results found.
-            </div>
-          ) : (
-            <motion.div
-              initial={hasAnimated ? false : "hidden"}
-              key={searchQuery}
-              animate="visible"
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.08 } },
-              }}
-              className="grid gap-3"
-              onAnimationComplete={() => setHasAnimated(true)}
-            >
-
-          {filteredQuestions?.map((question) => (
-            <QuestionCard key={question.id} question={question}/>
-          ))}
-
-        </motion.div>
-      )}
-
-      </Card>
+        <QuestionSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
+      
+        <QuestionCategories selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}/>
+      
+        <QuestionsContainer questions={filteredQuestions} searchQuery={searchQuery} />
     
       </div>
+      
     </main>
 
   );

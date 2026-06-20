@@ -6,7 +6,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner"
-
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,12 +35,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
-          <Toaster />
-        </AuthProvider>
+          <Providers>
+          <AuthProvider>
+              <ClientLayout>
+                {children}
+              </ClientLayout>
+            <Toaster />
+            </AuthProvider>
+          </Providers>
       </body>
     </html>
   );

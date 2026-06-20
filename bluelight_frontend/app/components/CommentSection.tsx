@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { saveComment } from "@/services/comment";
 import { getCommentsByQuestionId } from "@/services/comment";
 import { Comment, CommentRequest } from "@/types/comment";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface CommentSectionProps {
   questionId: string;
@@ -14,36 +14,16 @@ interface CommentSectionProps {
 
   export default function CommentSection({ questionId }: CommentSectionProps) {
     const { user } = useAuth();
-    const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
     const [commentError, setCommentError] = useState("");    
-    const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const queryClient = useQueryClient();
   
-    useEffect(() => {
-      if (user?.token) {
-        fetchComments(questionId);
-      }
-    }, [user?.firebaseUid]);
-
-    async function fetchComments(questionId: string){
-        if(!user?.token){
-            console.error("User not authenticated.");
-            return;
-        }
-        
-        try{
-            setLoading(true);
-            const data: Comment[] = await getCommentsByQuestionId(Number(questionId), user.token);
-            setComments(data);
-        }
-        catch(error){
-            console.log("Error fetching comments: " + error);
-        }
-        finally{
-            setLoading(false);
-        }
-    }
+    const {data: comments, isLoading } = useQuery({
+      queryKey: ["comments", questionId, user?.firebaseUid],
+      queryFn: () => getCommentsByQuestionId(Number(questionId), user!.token),
+      staleTime: Infinity,
+    });
 
     async function handleSubmit(){
       if (!newComment.trim() || !user?.token) return;
@@ -65,7 +45,15 @@ interface CommentSectionProps {
 
         const data : Comment = await saveComment(commentRequest, user.token);
 
-        setComments((prev) => [data, ...prev]);
+        queryClient.setQueryData(
+          ["comments", questionId, user?.firebaseUid],
+          (oldComments: Comment[] | undefined) => {
+            return oldComments
+              ? [data, ...oldComments]
+              : [data];
+          }
+        );
+        
         setNewComment("");
       }
       catch(error){
@@ -106,18 +94,18 @@ interface CommentSectionProps {
           </div>
         </div>
 
-      {loading && (
+      {isLoading && (
         <Loader/>
       )}
 
-      {!loading && comments.length === 0 && (
+      {!isLoading && comments?.length === 0 && (
         <div className="text-zinc-500 text-sm">
           No comments on this question yet.
         </div>
       )}
 
       <div className="space-y-4">
-        {comments.map((comment) => (
+        {comments?.map((comment) => (
           <div
             key={comment.id}
             className="bg-zinc-900 border border-zinc-800 rounded-xl p-4"

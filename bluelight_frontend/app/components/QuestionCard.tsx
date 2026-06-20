@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Category, CategoryLabels, Difficulty, DifficultyLabels, Question, QuestionType, QuestionTypeLabels } from "@/types/question";
+import { CategoryLabels, Difficulty, DifficultyLabels, Question, QuestionTypeLabels } from "@/types/question";
 import { motion } from "framer-motion";
 import Link from "next/link";
 

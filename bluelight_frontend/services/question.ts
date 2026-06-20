@@ -12,7 +12,7 @@ export const saveQuestion = async(questionBody : QuestionRequest, token : string
       );
 }
 
-export const getAllQuestions = async(token : string): Promise<Question[]> => {
+export const getAllQuestions = async (token: string): Promise<Question[]> => {
     const response = await axios.get(
         `${process.env.NEXT_PUBLIC_HOST_NAME}questions/getAllQuestions`,
         {

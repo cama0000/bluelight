@@ -2,7 +2,6 @@ package com.c5r.bluelight_api.Question;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionResponse {

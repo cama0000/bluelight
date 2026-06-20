@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { getQuestionById, submitFavorite, submitLikeDislike } from "@/services/question";
 import { Category, CategoryLabels, Difficulty, DifficultyLabels, QuestionType, type AnswerRequest, type FavoriteRequest, type Question, type VoteRequest } from "@/types/question";
 import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -25,82 +24,60 @@ import CodeSnippet from "@/app/components/CodeSnippet";
 import Loader from "@/app/components/Loader";
 import { shuffleChoices } from "@/app/utils/misc";
 import CommentSection from "@/app/components/CommentSection";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Question = () => {
-    const {user} = useAuth();
-    const router = useRouter();
-    const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
+    const [question, setQuestion] = useState<Question | undefined>(undefined);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-    const [question, setQuestion] = useState<Question | null>(null);
     const [shuffledChoices, setShuffledChoices] = useState<string[]>([]);
     const [response, setResponse] = useState<string>("");
-    const params = useParams<{id: string, title: string}>();
+    const params = useParams<{ id: string, title: string }>();
+    const queryClient = useQueryClient();
+
+    const {data: questionData, isLoading } = useQuery({
+      queryKey: ["question", params.id, user?.firebaseUid],
+      queryFn: () => getQuestionById(params.id, user!.token),
+      staleTime: Infinity,
+    });
 
     useEffect(() => {
-        if(user?.token){
-            fetchQuestion(params);
-        }
-    }, [user?.firebaseUid, params?.id]);
-      
+      if(questionData?.type === QuestionType.MULTIPLE_CHOICE){
+        const { array, newCorrectIndex } = shuffleChoices(questionData.answerChoices ?? [], questionData.answerIndex ?? 0);
 
-    async function fetchQuestion(params: {id: string, title: string}){
-        if(!user?.token){
-            console.error("User not authenticated.");
-            return;
-        }
-
-        try{
-            setLoading(true);
-            const data: Question = await getQuestionById(params.id, user.token);
-            setQuestion(data);
-
-            if(data.answerChoices && data.answerIndex !== null && data.answerIndex !== undefined){
-              const {array, newCorrectIndex} = shuffleChoices(data.answerChoices, data.answerIndex);  
-              
-              setShuffledChoices(array);
-              setQuestion({...data, answerIndex: newCorrectIndex});
-            }
-        }
-        catch(error){
-            console.log("Error fetching question: " + error);
-        }
-        finally{
-            setLoading(false);
-        }
-    }
+        setQuestion({
+          ...questionData,
+          answerIndex: newCorrectIndex
+        })
+        
+        setShuffledChoices(array);
+      }
+      else {
+        setQuestion(questionData);
+      }
+    }, [questionData])
 
     async function handleAnswerSelect(index: number) {
-        if(selectedAnswer !== null){
-            return;
-        }
-
         const correct = index === question?.answerIndex;
         setSelectedAnswer(index);
         setIsCorrect(correct);
 
-        if(correct){
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-              colors: ["#00f7ff", "#4ade80", "#3b82f6", "#a855f7"],
-            });
+        const answerRequestBody : AnswerRequest = {
+            userId: user!.firebaseUid,
+            questionId: question!.id,
+            isCorrect: correct
         }
 
-        if(user && question){
-            const answerRequestBody : AnswerRequest = {
-                userId: user.firebaseUid,
-                questionId: question.id,
-                isCorrect: correct
-            }
+        try{
+          await answerQuestion(answerRequestBody, user!.token);
 
-            try{
-                await answerQuestion(answerRequestBody, user.token);
-            }
-            catch(error){
-                console.log("Error answering question: " + error);
-            }
+          if(correct){
+            handleCorrectAnswer();
+          }
+        }
+        catch(error){
+            console.log("Error answering question: " + error);
         }
     }
 
@@ -113,12 +90,7 @@ const Question = () => {
         setIsCorrect(correct);
 
         if(correct){
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-              colors: ["#00f7ff", "#4ade80", "#3b82f6", "#a855f7"],
-            });
+          handleCorrectAnswer();
         }
 
         if(user && question){
@@ -135,6 +107,26 @@ const Question = () => {
                 console.log("Error answering question: " + error);
             }
         }
+    }
+
+    const handleCorrectAnswer = () => {
+      if(!question?.isCorrect) {
+        queryClient.invalidateQueries({
+          queryKey: ["questions", user?.firebaseUid],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["question", params.id, user?.firebaseUid],
+          refetchType: "none"
+        });
+      }
+    
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#00f7ff", "#4ade80", "#3b82f6", "#a855f7"],
+      });
     }
 
     async function handleFavorite(){
@@ -163,6 +155,11 @@ const Question = () => {
             isFavorited: data.isFavorited
           }));
 
+          queryClient.invalidateQueries({
+            queryKey: ["question", params.id, user?.firebaseUid],
+            refetchType: "none"
+          });
+
         } catch (error) {
             console.log("Error favoriting question:", error);
         }
@@ -170,16 +167,14 @@ const Question = () => {
     }
 
     async function handleLikeDislike(didLike: boolean) {
-        if (!user || !question) return;
-      
         try {
           const voteRequestBody: VoteRequest = {
-            userId: user.firebaseUid,
-            questionId: question.id,
+            userId: user!.firebaseUid,
+            questionId: question!.id,
             isLiked: didLike,
           };
       
-          const data: Question = await submitLikeDislike(voteRequestBody, user.token);
+          const data: Question = await submitLikeDislike(voteRequestBody, user!.token);
       
           setQuestion((prev) => {
             if (!prev) return prev;
@@ -192,12 +187,17 @@ const Question = () => {
             };
             return updated;
           });
+
+          queryClient.invalidateQueries({
+            queryKey: ["question", params.id, user?.firebaseUid],
+            refetchType: "none"
+          });
         } catch (error) {
           console.log("Error voting on question:", error);
         }
       }
 
-    if(loading){
+    if(isLoading){
         return(
           <Loader/>
         )

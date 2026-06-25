@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import ProtectedRoutes from "../components/ProtectedRoutes";
+import ProtectedRoutes from "../components/other/ProtectedRoutes";
 import { useEffect, useState } from "react";
 import { Question } from "@/types/question";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,8 @@ import { User, Mail, Trophy, Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCompletedQuestions, getFavoritedQuestions } from "@/services/user";
 import Link from "next/link";
-import Loader from "../components/Loader";
-import EditProfile from "../components/EditProfile";
+import Loader from "../components/other/Loader";
+import EditProfile from "../components/profile/EditProfile";
 
 const ProfilePage = () => {
   const { user } = useAuth();

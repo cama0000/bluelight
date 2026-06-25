@@ -16,9 +16,9 @@ import {
 } from "@/components/ui/card"
 import { motion } from 'framer-motion'
 import { FcGoogle } from 'react-icons/fc'
-import ProtectedRoutes from '../components/ProtectedRoutes';
+import ProtectedRoutes from '../components/other/ProtectedRoutes';
 import { MoonLoader } from 'react-spinners';
-import Loader from '../components/Loader';
+import Loader from '../components/other/Loader';
 
 const page = () => {
     const router = useRouter();

@@ -6,12 +6,12 @@ import { useState } from "react";
 import { getAllQuestions } from "@/services/question";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import ProtectedRoutes from "../components/ProtectedRoutes";
-import Loader from "../components/Loader";
+import ProtectedRoutes from "../components/other/ProtectedRoutes";
+import Loader from "../components/other/Loader";
 import { useQuery } from "@tanstack/react-query";
-import QuestionsContainer from "../components/QuestionsContainer";
-import QuestionCategories from "../components/QuestionCategories";
-import QuestionSearch from "../components/QuestionSearch";
+import QuestionsContainer from "../components/Questions/QuestionsContainer";
+import QuestionCategories from "../components/Questions/QuestionCategories";
+import QuestionSearch from "../components/Questions/QuestionSearch";
 
 const QuestionsPage = () => {
   const {user} = useAuth();

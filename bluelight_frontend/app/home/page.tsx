@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import React from 'react'
 import { useRouter } from 'next/navigation';
-import ProtectedRoutes from '../components/ProtectedRoutes';
+import ProtectedRoutes from '../components/other/ProtectedRoutes';
 
 const home = () => {
 

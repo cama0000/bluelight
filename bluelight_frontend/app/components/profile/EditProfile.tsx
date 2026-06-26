@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import Image from "next/image";
-import { updateProfile } from "@/api/user";
+import { updateProfile } from "@/api/userApi";
 import { User, UpdateProfileRequest } from "@/types/user";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";

@@ -8,10 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { User, Mail, Trophy, Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCompletedQuestions, getFavoritedQuestions } from "@/api/user";
 import Link from "next/link";
 import Loader from "../components/other/Loader";
 import EditProfile from "../components/profile/EditProfile";
+import { questionApi, getFavoritedQuestions } from "@/api/questionApi";
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -34,7 +34,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const data: Question[] = await getCompletedQuestions(user.token);
+      const data: Question[] = await questionApi.getCompletedQuestions(user.token);
 
       setQuestions(data);
     } catch (error) {

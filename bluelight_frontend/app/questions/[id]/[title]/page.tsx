@@ -11,7 +11,6 @@ import {
   Card,
   CardContent
 } from "@/components/ui/card"
-import { answerQuestion } from "@/api/userApi";
 import CodeSnippet from "@/app/components/questions/CodeSnippet";
 import Loader from "@/app/components/other/Loader";
 import { shuffleChoices } from "@/app/utils/misc";
@@ -68,14 +67,14 @@ const Question = () => {
       }
 
       if(user && question){
-          const answerRequestBody : AnswerRequest = {
+          const answerRequest : AnswerRequest = {
               userId: user.firebaseUid,
               questionId: question.id,
               isCorrect: correct
           }
 
           try{
-              await answerQuestion(answerRequestBody, user.token);
+              await questionApi.submitAnswer(answerRequest, user.token);
           }
           catch(error){
               console.log("Error answering question: " + error);
@@ -88,14 +87,14 @@ const Question = () => {
       setSelectedAnswer(index);
       setIsCorrect(correct);
 
-      const answerRequestBody : AnswerRequest = {
+      const answerRequest : AnswerRequest = {
           userId: user!.firebaseUid,
           questionId: question!.id,
           isCorrect: correct
       }
 
       try{
-        await answerQuestion(answerRequestBody, user!.token);
+        await questionApi.submitAnswer(answerRequest, user!.token);
 
         if(correct){
           handleCorrectAnswer();

@@ -1,12 +1,15 @@
-import { FavoriteRequest, Question, QuestionRequest, VoteRequest } from "@/types/question";
+import { AnswerRequest, FavoriteRequest, Question, QuestionRequest, VoteRequest } from "@/types/question";
 import { api, HttpMethod } from "@/api/api";
 
 export const questionRoutes = {
   create: () => `questions/save`,
   read: (questionId: string) => `questions/getQuestionById/${questionId}`,
   readAll: () => `questions/getAllQuestions`,
+  submitAnswer: () => `user/answerQuestion`,
   submitVote: () => `questions/submitLikeDislike`,
-  submitFavorite: () => `questions/submitFavorite`
+  submitFavorite: () => `questions/submitFavorite`,
+  getCompletedQuestions: () => `questions/getCompletedQuestions`,
+  getFavoritedQuestions: () => `questions/getFavoritedQuestions`
 }
 
 export const createQuestion = async(questionRequest : QuestionRequest, token : string) => {
@@ -34,6 +37,15 @@ export const readAll = async (token: string): Promise<Question[]> => {
   })
 }
 
+export const submitAnswer = async(answerRequest : AnswerRequest, token : string) => {
+  return await api({
+    route: questionRoutes.submitAnswer(),
+    method: HttpMethod.GET,
+    body: answerRequest,
+    token: token
+  })
+}
+
 export const submitVote = async(voteRequest : VoteRequest, token : string): Promise<Question> => {
   return await api({
     route: questionRoutes.submitVote(),
@@ -52,10 +64,29 @@ export const submitFavorite = async(favoriteRequest : FavoriteRequest, token : s
   })
 }
 
+export const getCompletedQuestions = async(token : string): Promise<Question[]> => {
+  return await api({
+    route: questionRoutes.getCompletedQuestions(),
+    method: HttpMethod.GET,
+    token: token
+  })
+}
+
+export const getFavoritedQuestions = async(token : string): Promise<Question[]> => {
+  return await api({
+    route: questionRoutes.getFavoritedQuestions(),
+    method: HttpMethod.GET,
+    token: token
+  })
+}
+
 export const questionApi = {
   createQuestion,
   read,
   readAll,
+  submitAnswer,
   submitVote,
-  submitFavorite
+  submitFavorite,
+  getCompletedQuestions,
+  getFavoritedQuestions
 }

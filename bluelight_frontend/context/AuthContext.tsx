@@ -1,7 +1,7 @@
 "use client";
 
+import { userApi } from "@/api/userApi";
 import { auth, googleProvider } from "@/firebase";
-import { login, getMe } from "@/api/user";
 import { User, Role } from "@/types/user";
 import {
   onAuthStateChanged,
@@ -50,7 +50,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         points: 0,
       };
 
-      const user: User = await login(userBody, token);
+      const user: User = await userApi.login(userBody, token);
 
       user.token = token;
       setUser(user);
@@ -82,7 +82,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const token = await firebaseUser.getIdToken();
 
           // set token manually since backend should not store token (not stable data)
-          const user: User = await getMe(token);
+          const user: User = await userApi.read(token);
           user.token = token;
 
           setUser(user);

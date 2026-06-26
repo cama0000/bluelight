@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { User, Mail, Trophy, Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCompletedQuestions, getFavoritedQuestions } from "@/services/user";
+import { getCompletedQuestions, getFavoritedQuestions } from "@/api/user";
 import Link from "next/link";
 import Loader from "../components/other/Loader";
 import EditProfile from "../components/profile/EditProfile";

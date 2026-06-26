@@ -1,7 +1,7 @@
 "use client";
 
 import { auth, googleProvider } from "@/firebase";
-import { login, getMe } from "@/services/user";
+import { login, getMe } from "@/api/user";
 import { User, Role } from "@/types/user";
 import {
   onAuthStateChanged,

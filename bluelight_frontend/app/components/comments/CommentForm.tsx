@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { saveComment } from "@/services/comment";
+import { saveComment } from "@/api/comment";
 import { Comment, CommentRequest } from "@/types/comment";
 import { User } from "@/types/user";
 import { useQueryClient } from "@tanstack/react-query";

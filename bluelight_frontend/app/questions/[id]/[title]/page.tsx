@@ -2,7 +2,6 @@
 
 import ProtectedRoutes from "@/app/components/other/ProtectedRoutes";
 import { useAuth } from "@/context/AuthContext";
-import { getQuestionById } from "@/services/question";
 import { QuestionType, type AnswerRequest, type Question } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,17 +11,17 @@ import {
   Card,
   CardContent
 } from "@/components/ui/card"
-import { answerQuestion } from "@/services/user";
-import { Separator } from "@radix-ui/react-separator";
-import CodeSnippet from "@/app/components/Questions/CodeSnippet";
+import { answerQuestion } from "@/api/user";
+import CodeSnippet from "@/app/components/questions/CodeSnippet";
 import Loader from "@/app/components/other/Loader";
 import { shuffleChoices } from "@/app/utils/misc";
 import CommentSection from "@/app/components/comments/CommentSection";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import QuestionHeader from "@/app/components/Questions/QuestionHeader";
-import FreeResponseForm from "@/app/components/Questions/FreeResponseForm";
-import AnswerChoices from "@/app/components/Questions/AnswerChoices";
-import AnswerExplanation from "@/app/components/Questions/AnswerExplanation";
+import QuestionHeader from "@/app/components/questions/QuestionHeader";
+import FreeResponseForm from "@/app/components/questions/FreeResponseForm";
+import AnswerChoices from "@/app/components/questions/AnswerChoices";
+import AnswerExplanation from "@/app/components/questions/AnswerExplanation";
+import { questionApi } from "@/api/questionApi";
 
 const Question = () => {
   const { user } = useAuth();
@@ -36,7 +35,7 @@ const Question = () => {
 
   const {data: questionData, isLoading } = useQuery({
     queryKey: ["question", params.id, user?.firebaseUid],
-    queryFn: () => getQuestionById(params.id, user!.token),
+    queryFn: () => questionApi.read(params.id, user!.token),
     staleTime: Infinity,
   });
 

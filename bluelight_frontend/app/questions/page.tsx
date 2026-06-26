@@ -3,15 +3,13 @@
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
-import { getAllQuestions } from "@/services/question";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import ProtectedRoutes from "../components/other/ProtectedRoutes";
 import Loader from "../components/other/Loader";
 import { useQuery } from "@tanstack/react-query";
-import QuestionsContainer from "../components/Questions/QuestionsContainer";
-import QuestionCategories from "../components/Questions/QuestionCategories";
-import QuestionSearch from "../components/Questions/QuestionSearch";
+import QuestionsContainer from "../components/questions/QuestionsContainer";
+import QuestionCategories from "../components/questions/QuestionCategories";
+import QuestionSearch from "../components/questions/QuestionSearch";
+import { questionApi } from "@/api/questionApi";
 
 const QuestionsPage = () => {
   const {user} = useAuth();
@@ -20,7 +18,7 @@ const QuestionsPage = () => {
 
   const {data: questions, isLoading } = useQuery({
     queryKey: ["questions", user?.firebaseUid],
-    queryFn: () => getAllQuestions(user!.token),
+    queryFn: () => questionApi.readAll(user!.token),
     staleTime: Infinity
   });
 

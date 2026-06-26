@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { getCommentsByQuestionId } from "@/services/comment";
+import { getCommentsByQuestionId } from "@/api/comment";
 import { useQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import CommentForm from "./CommentForm";

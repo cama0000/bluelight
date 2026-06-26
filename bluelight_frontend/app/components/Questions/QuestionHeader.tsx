@@ -1,4 +1,3 @@
-import { submitFavorite, submitLikeDislike } from "@/services/question"
 import { Question, FavoriteRequest, VoteRequest } from "@/types/question"
 import { User } from "@/types/user"
 import { useQueryClient } from "@tanstack/react-query"
@@ -8,6 +7,7 @@ import DifficultyBadge from "./DifficultyBadge"
 import CategoryBadge from "./CategoryBadge"
 import QuestionLikeDislike from "./QuestionLikeDislike"
 import QuestionFavorite from "./QuestionFavorite"
+import { questionApi } from "@/api/questionApi"
 
 interface QuestionHeaderProps{
   question: Question | undefined,
@@ -29,12 +29,12 @@ export default function QuestionHeader({ question, setQuestion, user }: Question
         return updated;
       });
 
-      const favoriteRequestBody: FavoriteRequest = {
+      const favoriteRequest: FavoriteRequest = {
         userId: user!.firebaseUid,
         questionId: question!.id,
       };
 
-      await submitFavorite(favoriteRequestBody, user!.token);
+      await questionApi.submitFavorite(favoriteRequest, user!.token);
 
       queryClient.setQueryData(
         ["question", question?.id.toString(), user?.firebaseUid],
@@ -57,13 +57,13 @@ export default function QuestionHeader({ question, setQuestion, user }: Question
 
   async function handleLikeDislike(didLike: boolean) {
     try {
-      const voteRequestBody: VoteRequest = {
+      const voteRequest: VoteRequest = {
         userId: user!.firebaseUid,
         questionId: question!.id,
         isLiked: didLike,
       };
     
-      const data: Question = await submitLikeDislike(voteRequestBody, user!.token);
+      const data: Question = await questionApi.submitVote(voteRequest, user!.token);
     
       setQuestion((prev) => {
         if (!prev) return prev;
@@ -82,7 +82,6 @@ export default function QuestionHeader({ question, setQuestion, user }: Question
         (prev: Question | undefined) => {
           if (!prev) return prev;
 
-      
           return {
             ...prev,
             likes: data.likes,

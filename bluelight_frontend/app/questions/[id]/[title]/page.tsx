@@ -11,7 +11,7 @@ import {
   Card,
   CardContent
 } from "@/components/ui/card"
-import { answerQuestion } from "@/api/user";
+import { answerQuestion } from "@/api/userApi";
 import CodeSnippet from "@/app/components/questions/CodeSnippet";
 import Loader from "@/app/components/other/Loader";
 import { shuffleChoices } from "@/app/utils/misc";

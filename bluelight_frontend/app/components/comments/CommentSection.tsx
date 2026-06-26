@@ -1,9 +1,9 @@
 import { useAuth } from "@/context/AuthContext";
-import { getCommentsByQuestionId } from "@/api/comment";
 import { useQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import CommentForm from "./CommentForm";
 import CommentCard from "./CommentCard";
+import { readByQuestionId } from "@/api/commentApi";
 
 interface CommentSectionProps {
   questionId: string;
@@ -14,7 +14,7 @@ export default function CommentSection({ questionId }: CommentSectionProps) {
 
   const {data: comments, isLoading } = useQuery({
     queryKey: ["comments", questionId, user?.firebaseUid],
-    queryFn: () => getCommentsByQuestionId(Number(questionId), user!.token),
+    queryFn: () => readByQuestionId(questionId, user!.token),
     staleTime: Infinity,
   });
 

@@ -1,6 +1,6 @@
+import { commentApi } from "@/api/commentApi";
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { saveComment } from "@/api/comment";
 import { Comment, CommentRequest } from "@/types/comment";
 import { User } from "@/types/user";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ export default function CommentForm({ questionId, user }: CommentFormProps) {
         content: newComment
       }
 
-      const data : Comment = await saveComment(commentRequest, user!.token);
+      const data : Comment = await commentApi.create(commentRequest, user!.token);
 
       queryClient.setQueryData(
         ["comments", questionId, user?.firebaseUid],

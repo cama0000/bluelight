@@ -1,6 +1,5 @@
 import { Comment } from "@/types/comment";
 
-
 interface CommentCardProps{
   comment: Comment
 }

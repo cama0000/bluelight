@@ -2,6 +2,8 @@ package com.c5r.bluelight_api.UserQuestion;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,22 +20,19 @@ public class UserQuestionService {
         return userQuestionRepository.save(userQuestion);
     }
 
-    public void delete(UserQuestion userQuestion){
-        log.info("Deleted user question with user ID {{}} and question with ID: {{}}", userQuestion.getUserId(), userQuestion.getQuestionId());
-        userQuestionRepository.delete(userQuestion);
+    public Optional<UserQuestion> findByQuestionId(long questionId){
+        return userQuestionRepository.findByQuestionId(questionId);
     }
 
-    public List<UserQuestion> findAll(){ return userQuestionRepository.findAll();}
-    public Optional<UserQuestion> findById(long id){ return userQuestionRepository.findById(id);}
-    public Optional<UserQuestion> findByQuestionId(long id){ return userQuestionRepository.findByQuestionId(id);}
-    public Optional<UserQuestion> findByUserIdAndQuestionId(Integer id, Integer questionId) {
-        return userQuestionRepository.findByUserIdAndQuestionId(id, questionId);
-    }
-    public List<UserQuestion> findAllByUserIdAndWasCorrect(Integer id, boolean wasCorrect) {
-        return userQuestionRepository.findAllByUserIdAndWasCorrect(id, wasCorrect);
+    public Optional<UserQuestion> findByUserIdAndQuestionId(Integer userId, Integer questionId) {
+        return userQuestionRepository.findByUserIdAndQuestionId(userId, questionId);
     }
 
-    public List<UserQuestion> findAllByUserId(Integer id) {
-        return userQuestionRepository.findAllByUserId(id);
+    public List<UserQuestion> findAllByUserIdAndWasCorrect(Integer userId, boolean wasCorrect) {
+        return userQuestionRepository.findAllByUserIdAndWasCorrect(userId, wasCorrect);
+    }
+
+    public List<UserQuestion> findAllByUserId(Integer userId) {
+        return userQuestionRepository.findAllByUserId(userId);
     }
 }

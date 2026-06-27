@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import Image from "next/image";
-import { updateProfile } from "@/api/userApi";
+import { updateProfile, userApi } from "@/api/userApi";
 import { User, UpdateProfileRequest } from "@/types/user";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -56,13 +56,13 @@ const EditProfile = ({
         profilePicUrl: profilePicUrlInput,
       };
 
-      const updatedUser: User = await updateProfile(updateProfileRequest, user.token);
+      const notificationMessage = "Profile updated successfully!";
+
+      const updatedUser: User = await userApi.updateProfile(updateProfileRequest, notificationMessage, user.token);
       updatedUser.token = user.token;
 
       setUser(updatedUser);
       setEditing(false);
-
-      toast.success("Profile updated successfully!");
     } catch (error) {
       console.log("Error saving profile: " + error);
     }

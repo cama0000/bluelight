@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "sonner";
 
 export enum HttpMethod {
     GET = "GET",
@@ -19,6 +20,7 @@ export interface ApiRequest {
     method: HttpMethod;
     body?: any;
     token: string;
+    notificationMessage?: string;
 }
 
 export const api = async (request: ApiRequest) => {
@@ -28,6 +30,10 @@ export const api = async (request: ApiRequest) => {
         data: request.body,
         headers: headers(request.token)
     })
+
+    if(request.notificationMessage){
+        toast.success(request.notificationMessage);
+    }
 
     return response.data;
 }

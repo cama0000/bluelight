@@ -8,11 +8,13 @@ export const userRoutes = {
   updateProfile: () => `user/updateProfile`
 }
 
-export const login = async(userRequest : User, token : string) : Promise<User> => {
+export const login = async(userRequest : User, notificationMessage: string, token : string) : Promise<User> => {
   return await api({
     route: userRoutes.login(),
     method: HttpMethod.GET,
-    token: token
+    body: userRequest,
+    notificationMessage: notificationMessage,
+    token: token,
   })
 }
 
@@ -24,11 +26,12 @@ export const read = async(token : string) : Promise<User> => {
   })
 }
 
-export const updateProfile = async(updateProfileRequest : UpdateProfileRequest, token : string) : Promise<User> => {
+export const updateProfile = async(updateProfileRequest : UpdateProfileRequest, notificationMessage: string, token : string) : Promise<User> => {
   return await api({
     route: userRoutes.updateProfile(),
     method: HttpMethod.POST,
     body: updateProfileRequest,
+    notificationMessage: notificationMessage,
     token: token
   })
 }

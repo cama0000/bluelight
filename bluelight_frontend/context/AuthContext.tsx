@@ -39,7 +39,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const token = await firebaseUser.getIdToken();
 
       // default user body, used on first login
-      const userBody: User = {
+      const userRequest: User = {
         firebaseUid: firebaseUser.uid,
         email: firebaseUser.email,   
         username: firebaseUser.displayName,
@@ -50,12 +50,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         points: 0,
       };
 
-      const user: User = await userApi.login(userBody, token);
+      const notificationMessage = "Logged in as '" + userRequest.username + "'";
+
+      const user: User = await userApi.login(userRequest, token, notificationMessage);
 
       user.token = token;
       setUser(user);
-
-      toast.success("Logged in as '" + user.username + "'")
     } catch (error) {
       console.error("Google sign-in error:", error);
       toast.error("Google sign-in error:" + error);

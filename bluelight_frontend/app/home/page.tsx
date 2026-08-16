@@ -1,14 +1,15 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
 import React from 'react'
 import { useRouter } from 'next/navigation';
 import ProtectedRoutes from '../components/other/ProtectedRoutes';
+import { useAppSelector } from '@/store/store';
+import { selectCurrentUser } from '@/store/user/userSelectors';
 
 const home = () => {
 
   const router = useRouter();
-  const {authLogout, user} = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   
   return (
     <div>

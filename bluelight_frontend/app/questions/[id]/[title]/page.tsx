@@ -1,7 +1,6 @@
 'use client'
 
 import ProtectedRoutes from "@/app/components/other/ProtectedRoutes";
-import { useAuth } from "@/context/AuthContext";
 import { QuestionType, type AnswerRequest, type Question } from "@/types/question";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -21,9 +20,11 @@ import FreeResponseForm from "@/app/components/questions/FreeResponseForm";
 import AnswerChoices from "@/app/components/questions/AnswerChoices";
 import AnswerExplanation from "@/app/components/questions/AnswerExplanation";
 import { questionApi } from "@/api/questionApi";
+import { useAppSelector } from "@/store/store";
+import { selectCurrentUser } from "@/store/user/userSelectors";
 
 const Question = () => {
-  const { user } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const [question, setQuestion] = useState<Question | undefined>(undefined);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -116,7 +117,7 @@ const Question = () => {
         refetchType: "none"
       });
     }
-  
+
     confetti({
       particleCount: 100,
       spread: 70,
@@ -125,14 +126,10 @@ const Question = () => {
     });
   }
 
-  if(isLoading){
-      return(
-        <Loader/>
-      )
-  }
-
   return(
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
+
+      <Loader isLoadingLocal={isLoading}/>
 
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <QuestionHeader question={question} setQuestion={setQuestion} user={user}/>

@@ -1,33 +1,29 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
+import { selectLoadingState } from '@/store/loading/loadingSelectors';
+import { useAppSelector } from '@/store/store';
+import { selectCurrentUser } from '@/store/user/userSelectors';
 import { useRouter } from 'next/navigation';
-import React, { ComponentType, useEffect, useState } from 'react';
-import { MoonLoader } from 'react-spinners';
+import React, { ComponentType, useEffect } from 'react';
 
 function ProtectedRoutes<P extends object>(WrappedComponent: ComponentType<P>) {
 const HOC = (props: P) => {
-    const { user, loading } = useAuth();
     const router = useRouter();
+    const user = useAppSelector(selectCurrentUser);
+    const isLoading = useAppSelector(selectLoadingState);
 
     useEffect(() => {
-        if(!loading && !user){
+        if(!isLoading && !user){
             router.push("/");
         }
 
-    }, [user, router, loading]);
-
-    if(loading){
-        return <MoonLoader/>
-    }
+    }, [user, router, isLoading]);
 
     return <WrappedComponent {...props} />;
 }
 
-
     HOC.displayName = `ProtectedRoutes(${getDisplayName(WrappedComponent)})`;
     return HOC;
-
 };
 
 // Helper function to set display name

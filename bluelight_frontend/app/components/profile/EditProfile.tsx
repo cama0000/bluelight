@@ -5,10 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import Image from "next/image";
-import { updateProfile, userApi } from "@/api/userApi";
+import { userApi } from "@/api/userApi";
 import { User, UpdateProfileRequest } from "@/types/user";
-import { useAuth } from "@/context/AuthContext";
-import { toast } from "sonner";
+import { useAppDispatch } from '@/store/store';
+import { setUser } from "@/store/user/userSlice";
+
 
 interface EditProfileProps{
   profilePicUrl: string;
@@ -28,9 +29,9 @@ const EditProfile = ({
   const [profilePicUrlInput, setProfilePicUrlInput] = useState(profilePicUrl);
   const [usernameInput, setUsernameInput] = useState(username);
   const [bioInput, setBioInput] = useState(bio);
-  const { setUser } = useAuth();
   const [usernameError, setUsernameError] = useState("");
   const [bioError, setBioError] = useState("");
+  const dispatch = useAppDispatch();
   
   async function handleSave() {
     try {
@@ -61,7 +62,7 @@ const EditProfile = ({
       const updatedUser: User = await userApi.updateProfile(updateProfileRequest, notificationMessage, user.token);
       updatedUser.token = user.token;
 
-      setUser(updatedUser);
+      dispatch(setUser(updatedUser));
       setEditing(false);
     } catch (error) {
       console.log("Error saving profile: " + error);

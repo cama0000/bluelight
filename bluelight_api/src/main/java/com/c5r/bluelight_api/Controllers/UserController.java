@@ -88,7 +88,7 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/answerQuestion")
-    public ResponseEntity<?> answerQuestion(@RequestBody AnswerRequest requestBody){
+    public ResponseEntity<User> answerQuestion(@RequestBody AnswerRequest requestBody){
         String firebaseId = (String) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();

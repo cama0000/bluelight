@@ -40,7 +40,7 @@ export const readAll = async (token: string): Promise<Question[]> => {
 export const submitAnswer = async(answerRequest : AnswerRequest, token : string) => {
   return await api({
     route: questionRoutes.submitAnswer(),
-    method: HttpMethod.GET,
+    method: HttpMethod.PUT,
     body: answerRequest,
     token: token
   })

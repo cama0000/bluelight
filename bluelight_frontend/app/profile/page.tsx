@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
 import ProtectedRoutes from "../components/other/ProtectedRoutes";
 import { useEffect, useState } from "react";
 import { Question } from "@/types/question";
@@ -12,9 +11,11 @@ import Link from "next/link";
 import Loader from "../components/other/Loader";
 import EditProfile from "../components/profile/EditProfile";
 import { questionApi, getFavoritedQuestions } from "@/api/questionApi";
+import { useAppSelector } from "@/store/store";
+import { selectCurrentUser } from "@/store/user/userSelectors";
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -61,12 +62,11 @@ const ProfilePage = () => {
     }
   }
 
-  if (loading) {
-    return <Loader />;
-  }
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white py-16 px-6">
+
+      <Loader isLoadingLocal={loading}/>
+
       <div className="max-w-12xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="bg-zinc-900/80 border border-zinc-800 shadow-lg rounded-2xl">
           <CardContent className="p-8 flex flex-col items-center md:items-start">

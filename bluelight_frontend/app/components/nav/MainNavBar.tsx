@@ -4,18 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { authLogout } from "@/store/user/userThunks";
+import { selectCurrentUser } from "@/store/user/userSelectors";
 
 
 const MainNavBar = () => {
-  const {user, authLogout} = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const dispatch = useAppDispatch();
   const [openModal, setOpenModal] = useState(false);
-  
+  const user = useAppSelector(selectCurrentUser);
 
   const navItems = [
     { name: "Profile", href: "/profile" },
@@ -23,18 +25,6 @@ const MainNavBar = () => {
     { name: "Leaderboard", href: "/leaderboard" },
     { name: "Community", href: "/community" },
   ];
-
-  async function handleLogout(){
-
-    try{
-      await authLogout();
-
-      router.push("/");
-    }
-    catch(error){
-      console.log(error);
-    }
-  }
 
   return (
     <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800">
@@ -94,7 +84,10 @@ const MainNavBar = () => {
                     <ul>
                       <li><a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a></li>
                       <li><a href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a></li>
-                      <li><a onClick={handleLogout} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a></li>
+                      <li><a onClick={() => {
+                              dispatch(authLogout());
+                              router.push("/");
+                      }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a></li>
                     </ul>
                   </div>
                 )}

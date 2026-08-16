@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import ProtectedRoutes from "../components/other/ProtectedRoutes";
 import Loader from "../components/other/Loader";
@@ -10,9 +9,11 @@ import QuestionsContainer from "../components/questions/QuestionsContainer";
 import QuestionCategories from "../components/questions/QuestionCategories";
 import QuestionSearch from "../components/questions/QuestionSearch";
 import { questionApi } from "@/api/questionApi";
+import { useAppSelector } from "@/store/store";
+import { selectCurrentUser } from "@/store/user/userSelectors";
 
 const QuestionsPage = () => {
-  const {user} = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -31,16 +32,12 @@ const QuestionsPage = () => {
     return matchesSearch && matchesCategory;
   });
   
-
-  if(isLoading){
-    return(
-      <Loader/>
-    )
-  }
-
   return (
+    
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
       
+      <Loader isLoadingLocal={isLoading}/>
+
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

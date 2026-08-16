@@ -2,12 +2,9 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -16,38 +13,21 @@ import {
 } from "@/components/ui/card"
 import { motion } from 'framer-motion'
 import { FcGoogle } from 'react-icons/fc'
-import ProtectedRoutes from '../components/other/ProtectedRoutes';
-import { MoonLoader } from 'react-spinners';
-import Loader from '../components/other/Loader';
+import { useAppDispatch } from '@/store/store';
+import { useSelector } from 'react-redux';
+import { authLogin } from '@/store/user/userThunks';
+import { selectCurrentUser } from '@/store/user/userSelectors';
 
 const page = () => {
-    const router = useRouter();
-    const {authLogin, user} = useAuth();
-    const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const user = useSelector(selectCurrentUser);
 
-
-    useEffect(() => {
-      if(user){
-        router.push("/questions");
-      }
-    }, [user])
-
-    async function handleLogin() {
-      try{
-        await authLogin();
-
-        router.push("/questions");
-      }
-      catch(error){
-        console.log(error)
-      }
-
-      if(loading){
-        return(
-          <Loader/>
-        )
+  useEffect(() => {
+    if(user){
+      router.push("/questions");
     }
-}
+  }, [user]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-zinc-950 to-zinc-900 text-white px-4">
@@ -69,10 +49,11 @@ const page = () => {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center gap-3 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:cursor-pointer hover:text-white text-zinc-200 py-5 transition-all duration-200"
-              onClick={handleLogin}
-            >
+              onClick={() => dispatch(authLogin())}>
+
               <FcGoogle className="text-xl" />
               Continue with Google
+              
             </Button>
           </CardContent>
 

@@ -1,16 +1,14 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import AuthProvider from "@/context/AuthContext";
 import ClientLayout from "./clientLayout";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner"
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
 import Providers from "./providers";
+import StoreProvider from "@/store/storeProvider";
+import AuthInitializer from "@/context/AuthInitializer";
+import { Loader } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,14 +33,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <StoreProvider>
           <Providers>
-          <AuthProvider>
+            <AuthInitializer/>
               <ClientLayout>
                 {children}
               </ClientLayout>
-            <Toaster />
-            </AuthProvider>
+              <Toaster />
           </Providers>
+        </StoreProvider>
       </body>
     </html>
   );

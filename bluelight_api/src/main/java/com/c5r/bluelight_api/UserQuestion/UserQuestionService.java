@@ -10,8 +10,11 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserQuestionService {
-    @Autowired
-    UserQuestionRepository userQuestionRepository;
+    public final UserQuestionRepository userQuestionRepository;
+
+    public UserQuestionService(UserQuestionRepository userQuestionRepository) {
+        this.userQuestionRepository = userQuestionRepository;
+    }
 
     public UserQuestion save(UserQuestion userQuestion){
         log.info("Saved user question with user ID {{}} and question with ID: {{}}", userQuestion.getUserId(), userQuestion.getQuestionId());

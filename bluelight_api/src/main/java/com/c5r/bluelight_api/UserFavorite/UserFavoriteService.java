@@ -11,8 +11,11 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserFavoriteService {
-    @Autowired
-    UserFavoriteRepository userFavoriteRepository;
+    public final UserFavoriteRepository userFavoriteRepository;
+
+    public UserFavoriteService(UserFavoriteRepository userFavoriteRepository) {
+        this.userFavoriteRepository = userFavoriteRepository;
+    }
 
     public UserFavorite save(UserFavorite userFavorite){
         log.info("Saved user favorite with user ID {{}} and question with ID: {{}}", userFavorite.getUserId(), userFavorite.getQuestionId());

@@ -14,11 +14,13 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class CommentService {
-    @Autowired
-    UserService userService;
+    public final UserService userService;
+    public final CommentRepository commentRepository;
 
-    @Autowired
-    CommentRepository commentRepository;
+    public CommentService(UserService userService, CommentRepository commentRepository) {
+        this.userService = userService;
+        this.commentRepository = commentRepository;
+    }
 
     @CacheEvict(value = "comments", key = "#comment.questionId")
     public Comment save(Comment comment){

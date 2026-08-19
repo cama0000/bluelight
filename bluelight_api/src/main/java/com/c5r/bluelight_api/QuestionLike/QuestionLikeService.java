@@ -10,8 +10,11 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class QuestionLikeService {
-    @Autowired
-    QuestionLikeRepository questionLikeRepository;
+    public final QuestionLikeRepository questionLikeRepository;
+
+    public QuestionLikeService(QuestionLikeRepository questionLikeRepository) {
+        this.questionLikeRepository = questionLikeRepository;
+    }
 
     public QuestionLike save(QuestionLike questionLike){
         log.info("Saved question like with question ID: {{}}", questionLike.getQuestionId());

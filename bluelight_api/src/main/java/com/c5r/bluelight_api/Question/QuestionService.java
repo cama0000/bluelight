@@ -17,11 +17,16 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class QuestionService {
-    @Autowired
-    QuestionRepository questionRepository;
+    private final QuestionRepository questionRepository;
+    private final UserQuestionService userQuestionService;
 
-    @Autowired
-    UserQuestionService userQuestionService;
+    public QuestionService(
+            QuestionRepository questionRepository,
+            UserQuestionService userQuestionService
+    ) {
+        this.questionRepository = questionRepository;
+        this.userQuestionService = userQuestionService;
+    }
 
     @Caching(
             evict = {

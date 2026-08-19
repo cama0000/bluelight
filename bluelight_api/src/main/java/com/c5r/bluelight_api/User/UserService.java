@@ -13,8 +13,11 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserService {
-    @Autowired
-    UserRepository userRepository;
+    public final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Caching(evict = {
             @CacheEvict(value = "userById", key = "#user.id"),

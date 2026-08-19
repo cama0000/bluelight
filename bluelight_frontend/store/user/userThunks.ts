@@ -34,8 +34,8 @@ export const authLogin = createAsyncThunk<
 
         const user = await userApi.login(
             userRequest,
-            token,
-            notificationMessage
+            notificationMessage,
+            token
         );
 
         return {
@@ -45,7 +45,7 @@ export const authLogin = createAsyncThunk<
     } 
     catch(error){
         toast.error("Google sign-in failed.");
-
+        await signOut(auth);
         return rejectWithValue("Google sign-in failed.");
     }
     finally{

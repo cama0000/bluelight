@@ -11,7 +11,7 @@ export const userRoutes = {
 export const login = async(userRequest : User, notificationMessage: string, token : string) : Promise<User> => {
   return await api({
     route: userRoutes.login(),
-    method: HttpMethod.GET,
+    method: HttpMethod.POST,
     body: userRequest,
     notificationMessage: notificationMessage,
     token: token,

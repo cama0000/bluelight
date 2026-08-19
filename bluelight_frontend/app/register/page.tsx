@@ -29,6 +29,15 @@ const page = () => {
     }
   }, [user]);
 
+  function handleAuthLogin(){
+    try{
+      dispatch(authLogin()).unwrap();
+    }
+    catch(error){
+      console.error("Google sign-in failed.")
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-zinc-950 to-zinc-900 text-white px-4">
       <motion.div
@@ -49,7 +58,7 @@ const page = () => {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center gap-3 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:cursor-pointer hover:text-white text-zinc-200 py-5 transition-all duration-200"
-              onClick={() => dispatch(authLogin())}>
+              onClick={handleAuthLogin}>
 
               <FcGoogle className="text-xl" />
               Continue with Google

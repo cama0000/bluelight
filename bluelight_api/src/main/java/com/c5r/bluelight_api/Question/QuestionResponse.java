@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class QuestionResponse {
-    private int id;
+    private Long id;
     private String title;
     private String prompt;
     private Category category;
@@ -56,7 +56,7 @@ public class QuestionResponse {
         this.isFavorited = isFavorited;
     }
 
-    public Integer getId() { return id; }
+    public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getPrompt() { return prompt; }
     public Category getCategory() { return category; }

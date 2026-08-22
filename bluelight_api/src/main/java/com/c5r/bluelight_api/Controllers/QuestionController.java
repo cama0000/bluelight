@@ -149,7 +149,7 @@ public class QuestionController {
         final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
 
         // TODO: this controller needs some cleanup, maybe also a service method for it
-        int userId = user.getId();
+        long userId = user.getId();
         int questionId = voteRequestBody.getQuestionId();
         boolean isLiked = voteRequestBody.getIsLiked();
 
@@ -232,8 +232,8 @@ public class QuestionController {
                 .getPrincipal();
 
         final User user = userService.findByFirebaseUid(firebaseId).orElseThrow();
-        final int userId = user.getId();
-        final int questionId = favoriteRequestBody.getQuestionId();
+        final long userId = user.getId();
+        final long questionId = favoriteRequestBody.getQuestionId();
 
         final Question question = questionService.findById(questionId).orElseThrow();
 

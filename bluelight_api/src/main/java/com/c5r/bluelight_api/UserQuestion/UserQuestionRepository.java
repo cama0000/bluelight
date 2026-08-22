@@ -7,8 +7,7 @@ import java.util.Optional;
 
 public interface UserQuestionRepository extends JpaRepository<UserQuestion, Long> {
     Optional<UserQuestion> findByQuestionId(long id);
-    Optional<UserQuestion> findByUserIdAndQuestionId(Integer userId, Integer questionId);
+    Optional<UserQuestion> findByUserIdAndQuestionId(long userId, long questionId);
     List<UserQuestion> findAllByUserIdAndWasCorrect(Integer id, boolean wasCorrect);
-
-    List<UserQuestion> findAllByUserId(Integer id);
+    List<UserQuestion> findAllByUserId(long id);
 }

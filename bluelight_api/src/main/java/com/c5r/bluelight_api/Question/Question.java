@@ -22,7 +22,7 @@ public class Question {
             strategy = GenerationType.SEQUENCE,
             generator = "question_id_seq"
     )
-    private Integer id;
+    private Long id;
 
     @Column(
             name = "TITLE",
@@ -114,7 +114,7 @@ public class Question {
         this.dislikes = dislikes;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 

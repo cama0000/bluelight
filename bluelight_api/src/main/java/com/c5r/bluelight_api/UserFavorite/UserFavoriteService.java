@@ -1,8 +1,6 @@
 package com.c5r.bluelight_api.UserFavorite;
 
-import com.c5r.bluelight_api.QuestionLike.QuestionLike;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +25,8 @@ public class UserFavoriteService {
         userFavoriteRepository.delete(userFavorite);
     }
 
-    public Optional<UserFavorite> findById(long id){ return userFavoriteRepository.findById(id);}
     public List<UserFavorite> findAllByUserId(long userId){ return userFavoriteRepository.findAllByUserId(userId);}
-    public Optional<UserFavorite> findByUserIdAndQuestionId(Integer userId, Integer questionId) {
+    public Optional<UserFavorite> findByUserIdAndQuestionId(long userId, long questionId) {
         return userFavoriteRepository.findByUserIdAndQuestionId(userId, questionId);
     }
 }

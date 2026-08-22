@@ -22,19 +22,19 @@ public class UserQuestion {
             strategy = GenerationType.SEQUENCE,
             generator = "user_question_id_seq"
     )
-    private Integer id;
+    private Long id;
 
     @Column(
             name = "USER_ID",
             nullable = false
     )
-    private Integer userId;
+    private Long userId;
 
     @Column(
             name = "QUESTION_ID",
             nullable = false
     )
-    private Integer questionId;
+    private Long questionId;
 
     @Column(
             name = "WAS_CORRECT",
@@ -50,15 +50,15 @@ public class UserQuestion {
     )
     private int pointsEarned = 0;
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return this.userId;
     }
 
-    public Integer getQuestionId() {
+    public Long getQuestionId() {
         return this.questionId;
     }
 
@@ -70,15 +70,15 @@ public class UserQuestion {
         return this.pointsEarned;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public void setQuestionId(Integer questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 

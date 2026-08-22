@@ -25,7 +25,7 @@ public class QuestionLikeService {
     public List<QuestionLike> findAll(){ return questionLikeRepository.findAll();}
     public Optional<QuestionLike> findById(long id){ return questionLikeRepository.findById(id);}
     public Optional<QuestionLike> findByQuestionId(long id){ return questionLikeRepository.findByQuestionId(id);}
-    public Optional<QuestionLike> findByUserIdAndQuestionId(Integer id, Integer questionId) {
+    public Optional<QuestionLike> findByUserIdAndQuestionId(long id, long questionId) {
         return questionLikeRepository.findByUserIdAndQuestionId(id, questionId);
     }
 }

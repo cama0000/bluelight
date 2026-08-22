@@ -28,7 +28,7 @@ public class User{
             strategy = GenerationType.SEQUENCE,
             generator = "user_id_seq"
     )
-    private Integer id;
+    private Long id;
 
     @Column(
             name = "FIREBASE_UID",
@@ -80,7 +80,7 @@ public class User{
 //        this.role = role;
 //    }
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
@@ -104,7 +104,7 @@ public class User{
         return this.role;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

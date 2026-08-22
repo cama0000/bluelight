@@ -1,7 +1,6 @@
 package com.c5r.bluelight_api.UserQuestion;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class UserQuestionService {
         return userQuestionRepository.findByQuestionId(questionId);
     }
 
-    public Optional<UserQuestion> findByUserIdAndQuestionId(Integer userId, Integer questionId) {
+    public Optional<UserQuestion> findByUserIdAndQuestionId(long userId, long questionId) {
         return userQuestionRepository.findByUserIdAndQuestionId(userId, questionId);
     }
 
@@ -33,7 +32,7 @@ public class UserQuestionService {
         return userQuestionRepository.findAllByUserIdAndWasCorrect(userId, wasCorrect);
     }
 
-    public List<UserQuestion> findAllByUserId(Integer userId) {
+    public List<UserQuestion> findAllByUserId(long userId) {
         return userQuestionRepository.findAllByUserId(userId);
     }
 }

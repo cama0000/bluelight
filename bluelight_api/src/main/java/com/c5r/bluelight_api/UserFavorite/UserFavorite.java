@@ -21,37 +21,37 @@ public class UserFavorite {
             strategy = GenerationType.SEQUENCE,
             generator = "user_favorite_id_seq"
     )
-    private Integer id;
+    private Long id;
 
     @Column(
             name = "USER_ID",
             nullable = false
     )
-    private Integer userId;
+    private Long userId;
 
     @Column(
             name = "QUESTION_ID",
             nullable = false
     )
-    private Integer questionId;
+    private Long questionId;
 
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return this.userId;
     }
 
-    public Integer getQuestionId() {
+    public Long getQuestionId() {
         return this.questionId;
     }
 
     public UserFavorite() {
     }
 
-    public UserFavorite(Integer userId, Integer questionId) {
+    public UserFavorite(long userId, long questionId) {
         this.userId = userId;
         this.questionId = questionId;
     }

@@ -20,19 +20,19 @@ public class Comment {
             strategy = GenerationType.SEQUENCE,
             generator = "comment_id_seq"
     )
-    private Integer id;
+    private Long id;
 
     @Column(
             name = "QUESTION_ID",
             nullable = false
     )
-    private Integer questionId;
+    private Long questionId;
 
     @Column(
             name = "USER_ID",
             nullable = false
     )
-    private Integer userId;
+    private Long userId;
 
     @Column(
             name = "USERNAME",
@@ -61,7 +61,7 @@ public class Comment {
     public Comment(){
     }
 
-    public Comment(Integer questionId, Integer userId, String username, String content) {
+    public Comment(long questionId, long userId, String username, String content) {
         this.questionId = questionId;
         this.userId = userId;
         this.username = username;

@@ -74,7 +74,8 @@ public class QuestionService {
     public List<QuestionResponse> generateCompletedQuestionResponses(List<UserQuestion> userQuestions){
         return userQuestions.stream()
                 .map(userQuestion -> {
-                    Question question = findById(userQuestion.getQuestionId()).orElseThrow();
+                    Question question = questionRepository.findById(userQuestion.getQuestionId())
+                                            .orElseThrow();
 
                     return new QuestionResponse(
                             question,
@@ -89,7 +90,8 @@ public class QuestionService {
     public List<QuestionResponse> generateFavoritedQuestionResponses(List<UserFavorite> userFavorites){
         return userFavorites.stream()
                 .map(userFavorite -> {
-                    Question question = findById(userFavorite.getQuestionId()).orElseThrow();
+                    Question question = questionRepository.findById(userFavorite.getQuestionId())
+                                            .orElseThrow();
 
                     return new QuestionResponse(
                             question,
